@@ -4,9 +4,9 @@ import com.qualcomm.hardware.motors.NeveRest20Gearmotor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Hardware;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import java.util.ArrayList;
@@ -26,10 +26,10 @@ public class Drivetrain implements Subsystem {
 
     public Drivetrain(HardwareMap hardwareMap) {
 
-        leftFront = opMode.hardwareMap.get(DcMotor.class, "FL");
-        leftBack = opMode.hardwareMap.get(DcMotor.class, "FB");
-        rightFront = opMode.hardwareMap.get(DcMotor.class, "RF");
-        rightBack = opMode.hardwareMap.get(DcMotor.class, "RB");
+        leftFront = hardwareMap.get(DcMotor.class, "FL");
+        leftBack = hardwareMap.get(DcMotor.class, "BL");
+        rightFront = hardwareMap.get(DcMotor.class, "FR");
+        rightBack = hardwareMap.get(DcMotor.class, "BR");
     }
 
     public void setMotorPowers(double v, double v1, double v2, double v3){
@@ -69,7 +69,7 @@ public class Drivetrain implements Subsystem {
         double v3 = r * Math.sin(robotAngle) + turn;
         double v4 = r * Math.cos(robotAngle) - turn;
 
-        setMotorPowers(v1, v2, v3, v4);
+        setMotorPowers(v2, v3, v4, v1);
     }
 
     public void encoderDrive(double x, double y, double turn, int counts) {

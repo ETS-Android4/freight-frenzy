@@ -24,10 +24,10 @@ public class Intake implements Subsystem {
     public void update(){
         switch(state){
             case IN:
-                intakeMotor.setPower(1.0);
+                intakeMotor.setPower(-1.0);
                 break;
             case OUT:
-                intakeMotor.setPower(-1.0);
+                intakeMotor.setPower(1.0);
                 break;
             case OFF:
                 intakeMotor.setPower(0.0);
