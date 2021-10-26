@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Lift;
+
 
 @TeleOp(name = "Test TeleOp")
 public class TestTeleOp extends RobotOpMode{
@@ -38,5 +40,17 @@ public class TestTeleOp extends RobotOpMode{
                 intake.setIntakeState(Intake.IntakeState.OFF);
             }
         }
+
+        if (epicGamer2.DPAD_UP.state){
+            lift.setAnglerPower(0.5);
+        }
+        else if (epicGamer2.DPAD_DOWN.state){
+            lift.setAnglerPower(-0.5);
+        }
+        else {
+            lift.setAnglerPower(0.0);
+        }
+
+        telemetry.addData("Angler Position: ", lift.getAnglerPosition());
     }
 }

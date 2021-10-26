@@ -7,11 +7,13 @@ import org.firstinspires.ftc.teamcode.EnhancedGamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
 
 public abstract class RobotOpMode extends OpMode {
     public Drivetrain drive;
     public Intake intake;
+    public Lift lift;
 
     public Subsystem[] subsystems;
     public EnhancedGamepad epicGamer1 = new EnhancedGamepad(gamepad1);
@@ -21,6 +23,7 @@ public abstract class RobotOpMode extends OpMode {
     public void init(){
         drive = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap);
+        lift = new Lift(hardwareMap);
 
         epicGamer1 = new EnhancedGamepad(gamepad1);
         epicGamer2 = new EnhancedGamepad(gamepad2);
