@@ -36,11 +36,11 @@ public class Lift implements Subsystem{
     }
 
     public void setAnglerPower(double newLiftPower){
-        anglerPower = newLiftPower;
+        angler.setPower(newLiftPower);
     }
 
     public double getAnglerPower(){
-        return anglerPower;
+        return angler.getPower();
     }
     public int getAnglerPosition(){
         return angler.getCurrentPosition();
