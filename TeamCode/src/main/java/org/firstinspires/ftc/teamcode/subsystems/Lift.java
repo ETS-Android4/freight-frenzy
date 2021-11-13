@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
+import com.qualcomm.robotcore.hardware.Servo;
 
 
 public class Lift implements Subsystem{
 
     private DcMotor angler;
+    private DcMotor liftLeft;
+    private DcMotor liftRight;
+
 
     private int TOP_FROM_WAREHOUSE;
     private int MID_FROM_WAREHOUSE;
@@ -32,6 +35,9 @@ public class Lift implements Subsystem{
 
     public Lift(HardwareMap hardwareMap){
         angler = hardwareMap.get(DcMotor.class, "angleAdjuster");
+        liftLeft = hardwareMap.get(DcMotor.class, "liftleft");
+        liftRight = hardwareMap.get(DcMotor.class, "liftRight");
+
         //angler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
@@ -63,6 +69,14 @@ public class Lift implements Subsystem{
         }
     }
 
+    public void setLiftPower(double newLiftPower){
+        liftLeft.setPower(-newLiftPower);
+        liftRight.setPower(newLiftPower);
+    }
+
+    public double getLiftPower(){
+        return liftRight.getPower();
+    }
 
     public void setAnglerState (AngleState state) {
         this.state = state;

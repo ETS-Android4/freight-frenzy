@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 //import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.CarouselManipulator;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 
@@ -40,12 +41,29 @@ public class TestTeleOp extends RobotOpMode{
                 intake.setIntakeState(Intake.IntakeState.OFF);
             }
         }
+        if (gamepad2.right_trigger != 0){
+            lift.setLiftPower(1.0);
+        }
+        if (gamepad2.left_trigger != 0){
+            lift.setLiftPower(-1.0);
+        }
+
+        if (epicGamer1.DPAD_LEFT.state){
+            duckScorer.setManipulatorState(CarouselManipulator.carouselManipulatorState.REST);
+        }
+        if (epicGamer1.DPAD_RIGHT.state){
+            duckScorer.setManipulatorState(CarouselManipulator.carouselManipulatorState.SCORING);
+        }
+        if (epicGamer1.DPAD_DOWN.state){
+            duckScorer.setManipulatorState(CarouselManipulator.carouselManipulatorState.STOWED);
+        }
+
 
         if (epicGamer2.DPAD_UP.state){
-            lift.setAnglerPower(0.5);
+            lift.setAnglerPower(1.0);
         }
         else if (epicGamer2.DPAD_DOWN.state){
-            lift.setAnglerPower(-0.5);
+            lift.setAnglerPower(-1.0);
         }
         else {
             lift.setAnglerPower(0.0);
