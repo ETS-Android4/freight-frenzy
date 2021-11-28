@@ -44,8 +44,11 @@ public class TestTeleOp extends RobotOpMode{
         if (gamepad2.right_trigger != 0){
             lift.setLiftPower(1.0);
         }
-        if (gamepad2.left_trigger != 0){
+        else if (gamepad2.left_trigger != 0){
             lift.setLiftPower(-1.0);
+        }
+        else {
+            lift.setLiftPower(0.0);
         }
 
         if (epicGamer1.DPAD_LEFT.state){
@@ -56,6 +59,18 @@ public class TestTeleOp extends RobotOpMode{
         }
         if (epicGamer1.DPAD_DOWN.state){
             duckScorer.setManipulatorState(CarouselManipulator.carouselManipulatorState.STOWED);
+        }
+
+        if (epicGamer2.A.state){
+            lift.setAnglerState(Lift.AngleState.BOTTOM);
+        }
+
+        if (epicGamer2.B.state){
+            lift.setAnglerState(Lift.AngleState.MID);
+        }
+
+        if (epicGamer2.Y.state){
+            lift.setAnglerState(Lift.AngleState.TOP);
         }
 
 

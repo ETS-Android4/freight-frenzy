@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.autos;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.EnhancedGamepad;
 import org.firstinspires.ftc.teamcode.subsystems.CarouselManipulator;
@@ -12,8 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
-
-public abstract class RobotOpMode extends OpMode {
+public class RobotAuto extends LinearOpMode {
     public Drivetrain drive;
     public Intake intake;
     public Lift lift;
@@ -22,11 +20,28 @@ public abstract class RobotOpMode extends OpMode {
     public Depositor depositor;
 
     public Subsystem[] subsystems;
-    public EnhancedGamepad epicGamer1 = new EnhancedGamepad(gamepad1);
-    public EnhancedGamepad epicGamer2 = new EnhancedGamepad(gamepad2);
+
+    private Runnable updateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while (opModeIsActive()){
+                for (Subsystem subsystem: subsystems){
+                    subsystem.update();
+                }
+                telemetry.update();
+            }
+        }
+    };
+
+    protected Thread updateThread = new Thread(updateRunnable);
+
 
     @Override
-    public void init(){
+    public void runOpMode() throws InterruptedException {
+
+    }
+
+    void initialize() {
         drive = new Drivetrain(hardwareMap);
         intake = new Intake(hardwareMap);
         lift = new Lift(hardwareMap);
@@ -34,19 +49,9 @@ public abstract class RobotOpMode extends OpMode {
         vision = new Vision(hardwareMap);
         depositor = new Depositor(hardwareMap);
 
-        epicGamer1 = new EnhancedGamepad(gamepad1);
-        epicGamer2 = new EnhancedGamepad(gamepad2);
-
-        subsystems = new Subsystem[] {drive, intake, lift, duckScorer, vision, depositor};
+        subsystems = new Subsystem[] {drive, intake, lift, duckScorer, vision};
     }
 
-    @Override
-    public void loop(){
-        for (Subsystem subsystem : subsystems){
-            subsystem.update();
-        }
-        epicGamer1.update();
-        epicGamer2.update();
-    }
+
 
 }
