@@ -8,19 +8,26 @@ public class CarouselManipulator implements Subsystem {
 
     private Servo turretServo;
     private CRServo carouselSpinner;
-    public static double CAROUSEL_SCORING = 0.25;
-    public static double carousel_REST = 0.5;
-    public static double carousel_STOW = 0.75;
+    public static double CAROUSEL_SCORING_BLUE = 0.0;
+    public static double CAROUSEL_REST_BLUE = 0.2;
 
+    public static double CAROUSEL_SCORING_RED = 1.0;
+    public static double CAROUSEL_REST_RED = 0.9;
 
+    public static double CAROUSEL_STOW = 0.31;
 
-    public enum carouselManipulatorState{
+    public enum CarouselManipulatorState {
         SCORING,
         REST,
         STOWED
     }
+    public enum Alliance {
+        BLUE,
+        RED
+    }
 
-    public carouselManipulatorState manipulatorState = carouselManipulatorState.STOWED;
+    public CarouselManipulatorState manipulatorState = CarouselManipulatorState.STOWED;
+    public Alliance fieldSide = Alliance.BLUE;
 
 
     public CarouselManipulator(HardwareMap hardwareMap) {
@@ -32,32 +39,62 @@ public class CarouselManipulator implements Subsystem {
 
 
     public void update(){
-        switch (manipulatorState){
-            case SCORING:
-                turretServo.setPosition(CAROUSEL_SCORING);
-                carouselSpinner.setPower(1.0);
+
+        switch (fieldSide){
+            case RED:
+                switch (manipulatorState){
+                    case SCORING:
+                        turretServo.setPosition(CAROUSEL_SCORING_BLUE);
+                        carouselSpinner.setPower(-1.0);
+                        break;
+
+                    case REST:
+                        //turretServo.setPosition(CAROUSEL_SCORING_BLUE);
+                        carouselSpinner.setPower(0.0);
+                        break;
+
+                    case STOWED:
+                        turretServo.setPosition(CAROUSEL_STOW);
+                        carouselSpinner.setPower(0.0);
+                        break;
+                }
+                break;
+            case BLUE:
+                switch (manipulatorState){
+                    case SCORING:
+                        turretServo.setPosition(CAROUSEL_SCORING_RED);
+                        carouselSpinner.setPower(1.0);
+                        break;
+
+                    case REST:
+                        //turretServo.setPosition(CAROUSEL_SCORING_RED);
+                        carouselSpinner.setPower(0.0);
+                        break;
+
+                    case STOWED:
+                        turretServo.setPosition(CAROUSEL_STOW);
+                        carouselSpinner.setPower(0.0);
+                        break;
+                }
                 break;
 
-            case REST:
-                turretServo.setPosition(carousel_REST);
-                carouselSpinner.setPower(0.0);
-                break;
 
-            case STOWED:
-                turretServo.setPosition(carousel_STOW);
-                carouselSpinner.setPower(0.0);
-                break;
         }
 
 
+
     }
 
-    public carouselManipulatorState getIntakeState(){
+    public CarouselManipulatorState getIntakeState(){
         return manipulatorState;
     }
 
-    public void setManipulatorState(CarouselManipulator.carouselManipulatorState state) {
+    public void setManipulatorState(CarouselManipulatorState state) {
         this.manipulatorState = state;
+    }
+
+    public void setAllianceSide (Alliance fieldSide){
+        this.fieldSide = fieldSide;
     }
 
 }

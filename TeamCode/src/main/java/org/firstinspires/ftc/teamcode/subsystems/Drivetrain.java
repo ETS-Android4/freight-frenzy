@@ -127,7 +127,7 @@ public class Drivetrain implements Subsystem {
         leftFront.setPower(powers[0]);
         rightFront.setPower(powers[1]);
         leftBack.setPower(powers[2]);
-        rightBack.setPower(powers[3]);
+        rightBack.setPower(-powers[3]);
     }
 
 
