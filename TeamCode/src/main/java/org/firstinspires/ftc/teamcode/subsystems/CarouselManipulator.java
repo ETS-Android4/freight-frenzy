@@ -8,13 +8,13 @@ public class CarouselManipulator implements Subsystem {
 
     private Servo turretServo;
     private CRServo carouselSpinner;
-    public static double CAROUSEL_SCORING_BLUE = 0.0;
-    public static double CAROUSEL_REST_BLUE = 0.2;
+    public static double CAROUSEL_SCORING_BLUE = 0.1;
+    public static double CAROUSEL_REST_BLUE = 0.25;
 
     public static double CAROUSEL_SCORING_RED = 1.0;
     public static double CAROUSEL_REST_RED = 0.9;
 
-    public static double CAROUSEL_STOW = 0.31;
+    public static double CAROUSEL_STOW = 0.44;
 
     public enum CarouselManipulatorState {
         SCORING,
@@ -49,7 +49,7 @@ public class CarouselManipulator implements Subsystem {
                         break;
 
                     case REST:
-                        //turretServo.setPosition(CAROUSEL_SCORING_BLUE);
+                        turretServo.setPosition(CAROUSEL_REST_BLUE);
                         carouselSpinner.setPower(0.0);
                         break;
 
@@ -67,7 +67,7 @@ public class CarouselManipulator implements Subsystem {
                         break;
 
                     case REST:
-                        //turretServo.setPosition(CAROUSEL_SCORING_RED);
+                        turretServo.setPosition(CAROUSEL_REST_RED);
                         carouselSpinner.setPower(0.0);
                         break;
 

@@ -8,7 +8,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Point;
 
-public class RedCarouselTeamElementPipeline extends OpenCvPipeline {
+public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
 
     Mat mat = new Mat();
     public enum Location {
@@ -19,14 +19,14 @@ public class RedCarouselTeamElementPipeline extends OpenCvPipeline {
 
     private Location location;
 
-    static final Rect RIGHT_ROI = new Rect(
-            new Point(165, 80), //Formally 35
-            new Point(120, 140)); //Formally 75
-
     static final Rect LEFT_ROI = new Rect(
-            new Point(80, 77), //Formally 35
-            new Point(30, 150)); //Formally 75
-    static double PERCENT_COLOR_THRESHOLD = 0.4;
+            new Point(170, 80), //Formally 35
+            new Point(215, 140)); //Formally 75
+
+    static final Rect RIGHT_ROI = new Rect(
+            new Point(260, 77), //Formally 35
+            new Point(310, 150)); //Formally 75
+    static double PERCENT_COLOR_THRESHOLD = 0.3;
 
 
     @Override
@@ -40,27 +40,27 @@ public class RedCarouselTeamElementPipeline extends OpenCvPipeline {
         Mat left = mat.submat(RIGHT_ROI);
         Mat right = mat.submat(LEFT_ROI);
 
-        double rightValue = Core.sumElems(left).val[0] / RIGHT_ROI.area() / 255; //Formally LEFT_ROI.area() / 255
-        double leftValue = Core.sumElems(right).val[0] / LEFT_ROI.area() / 255; //Formally RIGHT_ROI.area() / 255
+        double leftValue = Core.sumElems(left).val[0] / RIGHT_ROI.area() / 255; //Formally LEFT_ROI.area() / 255
+        double rightValue = Core.sumElems(right).val[0] / LEFT_ROI.area() / 255; //Formally RIGHT_ROI.area() / 255
 
         left.release();
         right.release();
 
-        boolean elementRight = rightValue > PERCENT_COLOR_THRESHOLD;
-        boolean elementMid = leftValue > PERCENT_COLOR_THRESHOLD;
+        boolean elementMID = leftValue > PERCENT_COLOR_THRESHOLD;
+        boolean elementLeft = rightValue > PERCENT_COLOR_THRESHOLD;
 
-        if (elementRight) {
-            location = Location.RIGHT;
+        if (elementLeft) {
+            location = Location.LEFT;
             //telemetry.addData("Element Location: ", "LEFT");
         }
 
-        else if (elementMid){
+        else if (elementMID){
             location = Location.MID;
             //telemetry.addData("Element Location: ", "MID");
         }
 
         else {
-            location = Location.LEFT;
+            location = Location.RIGHT;
             //telemetry.addData("Element Location: ", "RIGHT");
         }
         //telemetry.update();

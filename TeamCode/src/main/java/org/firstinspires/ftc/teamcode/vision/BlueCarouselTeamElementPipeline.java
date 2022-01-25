@@ -33,7 +33,7 @@ public class BlueCarouselTeamElementPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input){
         Imgproc.cvtColor(input, mat, Imgproc.COLOR_RGB2HSV);
         Scalar lowHSV = new Scalar(50, 0, 0); //HEX #579884
-        Scalar highHSV = new Scalar(100, 255, 255); //HEX #9BDABF
+        Scalar highHSV = new Scalar(80, 255, 255); //HEX #9BDABF
 
         Core.inRange(mat, lowHSV, highHSV, mat);
 

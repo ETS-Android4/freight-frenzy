@@ -19,12 +19,12 @@ public class RedCarouselAuto extends RobotAuto {
     private static int TIME_TO_DUCK_SCORE = 3000;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 2530;
-    private static int EXTEND_TO_MID = 2400;
-    private static int EXTEND_TO_BOTTOM = 2325;
+    private static int EXTEND_TO_TOP = 1675; //2530
+    private static int EXTEND_TO_MID = 1550; //2400
+    private static int EXTEND_TO_BOTTOM = 1525; //2325
     private static int STRAFE_TO_STORAGE = 1000;
-    private static int TURN_IN_STORAGE = 500;
-    private static int STRAFE_WITHIN_STORAGE = 650;
+    private static int TURN_IN_STORAGE = 450;
+    private static int STRAFE_WITHIN_STORAGE = 575;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -35,17 +35,19 @@ public class RedCarouselAuto extends RobotAuto {
 
 
         while (!opModeIsActive() && !isStopRequested()){
-            telemetry.addData("Element Location: ", vision.getElementPipelineRed().getLocation());
+            telemetry.addData("Element Location: ", vision.getElementPipelineRedCarousel().getLocation());
             telemetry.update();
         }
 
         waitForStart();
 
+        lift.setExtensionState(Lift.ExtensionState.IDLE);
+        //lift.setExtensionState(Lift.ExtensionState.AUTONOMOUS);
         duckScorer.setAllianceSide(CarouselManipulator.Alliance.RED);
 
         updateThread.start();
 
-        elementLocation = vision.getElementPipelineRed().getLocation();
+        elementLocation = vision.getElementPipelineRedCarousel().getLocation();
 
         switch (elementLocation){
             case RIGHT:
@@ -55,16 +57,23 @@ public class RedCarouselAuto extends RobotAuto {
                  */
                 extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
-                homeLiftFrom(EXTEND_TO_TOP);
+                lift.setExtensionState(Lift.ExtensionState.HOMING);
+                lift.setAnglerState(Lift.AngleState.BOTTOM);
+
+                //homeLiftFrom(EXTEND_TO_TOP);
                 break;
             case MID:
                 /*If the element is in the middle position,
                 Angle the lift to the second level of the shipping hub
                 Extend to the second level of the shipping hub
                  */
+
                 extendToScore(Lift.AngleState.CAROUSEL_MID);
 
-                homeLiftFrom(EXTEND_TO_MID);
+                lift.setExtensionState(Lift.ExtensionState.HOMING);
+                lift.setAnglerState(Lift.AngleState.BOTTOM);
+
+                //homeLiftFrom(EXTEND_TO_MID);
                 break;
             case LEFT:
                 /*If the element is in the left position,
@@ -73,7 +82,10 @@ public class RedCarouselAuto extends RobotAuto {
                  */
                 extendToScore(Lift.AngleState.CAROUSEL_BOTTOM);
 
-                homeLiftFrom(EXTEND_TO_BOTTOM);
+                lift.setExtensionState(Lift.ExtensionState.HOMING);
+                lift.setAnglerState(Lift.AngleState.BOTTOM);
+
+                //homeLiftFrom(EXTEND_TO_BOTTOM);
                 break;
         }
 
@@ -96,7 +108,10 @@ public class RedCarouselAuto extends RobotAuto {
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
-        homeLiftFrom(EXTEND_TO_TOP);
+        lift.setExtensionState(Lift.ExtensionState.HOMING);
+        lift.setAnglerState(Lift.AngleState.BOTTOM);
+
+        //homeLiftFrom(EXTEND_TO_BOTTOM);
 
         duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
 
@@ -131,14 +146,16 @@ public class RedCarouselAuto extends RobotAuto {
 
     public void extendToScore (Lift.AngleState angleState){
         //Extend to "ready to angle position"
-        extendToPosition(EXTEND_TO_ANGLE);
+        //extendToPosition(EXTEND_TO_ANGLE);
+        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
 
-        sleep(1000);
+        //sleep(1000);
 
         //Angle slides towards the top level of the shipping hub
         lift.setAnglerState(angleState);
+        depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
 
-        sleep(1000);
+        sleep(250); //Previously 1000
 
         //Extend slides to the correct level of the shipping hub
         switch (angleState){
@@ -153,7 +170,7 @@ public class RedCarouselAuto extends RobotAuto {
                 break;
         }
 
-        sleep(1000);
+        sleep(250);
 
         //Set the depositor to a scoring position
         depositor.setDepositorState(Depositor.depositorState.SCORING);
@@ -161,18 +178,40 @@ public class RedCarouselAuto extends RobotAuto {
         //Wait x seconds
         sleep(TIME_TO_DEPOSIT);
 
+        depositor.setDepositorState(Depositor.depositorState.RESTING);
+
     }
+
 
     public void extendToPosition(int counts) {
         double startTime = getRuntime();
-        lift.setLiftPower(0.3);
+        //lift.setLiftPower(-1.0); //Formally 0.3
+        lift.setExtensionState(Lift.ExtensionState.OUT);
 
 
         while (opModeIsActive()) {
-            if (Math.abs(lift.getLiftLeftPosition()) > counts) {
+            if (Math.abs(lift.getLiftPosition()) > counts) {
                 break;
             }
-            else if (getRuntime() - startTime > 4.0){
+            else if (getRuntime() - startTime > 3.0){
+                break;
+            }
+        }
+
+        //lift.setLiftPower(0.0);
+        lift.setExtensionState(Lift.ExtensionState.IDLE);
+    }
+
+    /*
+    public void extendToPosition(int counts) {
+        double startTime = getRuntime();
+        lift.setLiftPower(-1.0); //Formally 0.3
+
+        while (opModeIsActive()) {
+            if (lift.getLiftPosition() > counts) {
+                break;
+            }
+            else if (getRuntime() - startTime > 1000.0){ //Previously 4.0
                 break;
             }
         }
@@ -180,20 +219,27 @@ public class RedCarouselAuto extends RobotAuto {
         lift.setLiftPower(0.0);
     }
 
+     */
+
+
+
+
     public void retractToPosition(int endPosition){
-        lift.setLiftPower(-1.0);
+        //lift.setLiftPower(1.0);
+        lift.setExtensionState(Lift.ExtensionState.IN);
 
         while (opModeIsActive()) {
-            if (Math.abs(lift.getLiftLeftPosition()) < endPosition) {
+            if (Math.abs(lift.getLiftPosition()) < endPosition) {
                 break;
             }
         }
 
-        lift.setLiftPower(0.0);
+        //lift.setLiftPower(0.0);
+        lift.setExtensionState(Lift.ExtensionState.IDLE);
     }
 
     public void slideRetract(){
-        lift.setLiftPower(-1.0);
+        lift.setLiftPower(1.0);
 
         while (opModeIsActive()) {
             if (!lift.getRetractionLimitValue()) {
@@ -220,5 +266,6 @@ public class RedCarouselAuto extends RobotAuto {
         }
         drive.stop();
     }
+
 
 }

@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.vision.BlueWarehouseTeamElementPipeline;
 import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
 import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -11,12 +12,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public class Vision implements Subsystem{
     public OpenCvCamera camera;
-    private RedCarouselTeamElementPipeline elementPipelineRed = new RedCarouselTeamElementPipeline();
-    private BlueCarouselTeamElementPipeline elementPipelineBlue = new BlueCarouselTeamElementPipeline();
+    private RedCarouselTeamElementPipeline elementPipelineRedCarousel = new RedCarouselTeamElementPipeline();
+    private BlueCarouselTeamElementPipeline elementPipelineBlueCarousel = new BlueCarouselTeamElementPipeline();
+    private BlueWarehouseTeamElementPipeline elementPipelineBlueWarehouse = new BlueWarehouseTeamElementPipeline();
 
     public enum robotLocation {
         BLUE_CAROUSEL,
-        RED_CAROUSEL
+        RED_CAROUSEL,
+        BLUE_WAREHOUSE
     }
 
     public robotLocation startLocation = robotLocation.BLUE_CAROUSEL;
@@ -36,10 +39,14 @@ public class Vision implements Subsystem{
                 camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
                 switch (startLocation){
                     case RED_CAROUSEL:
-                        camera.setPipeline(elementPipelineRed);
+                        camera.setPipeline(elementPipelineRedCarousel);
                         break;
                     case BLUE_CAROUSEL:
-                        camera.setPipeline(elementPipelineBlue);
+                        camera.setPipeline(elementPipelineBlueCarousel);
+                        break;
+                    case BLUE_WAREHOUSE:
+                        camera.setPipeline(elementPipelineBlueWarehouse);
+                        break;
                 }
             }
             public void onError(int thing){
@@ -50,9 +57,11 @@ public class Vision implements Subsystem{
 
     public void disable() {camera.stopStreaming();}
 
-    public RedCarouselTeamElementPipeline getElementPipelineRed() { return elementPipelineRed;}
+    public RedCarouselTeamElementPipeline getElementPipelineRedCarousel() { return elementPipelineRedCarousel;}
 
-    public BlueCarouselTeamElementPipeline getElementPipelineBlue() { return elementPipelineBlue;}
+    public BlueCarouselTeamElementPipeline getElementPipelineBlueCarousel() { return elementPipelineBlueCarousel;}
+
+    public BlueWarehouseTeamElementPipeline getElementPipelineBlueWarehouse() { return elementPipelineBlueWarehouse;}
 
 
 

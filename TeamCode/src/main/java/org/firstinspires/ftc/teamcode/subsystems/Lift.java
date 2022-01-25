@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.opMode;
 
 
 public class Lift implements Subsystem{
@@ -19,12 +15,13 @@ public class Lift implements Subsystem{
     private DigitalChannel retractionLimit;
 
 
-    private static int TOP_FROM_WAREHOUSE = 475;
-    private static int MID_FROM_CAROUSEL = 300;
-    private static int TOP_FROM_CAROUSEL = 500;
+    private static int TOP_FROM_WAREHOUSE = 460; //Previously 475
+    private static int MID_FROM_CAROUSEL = 265;
+    private static int TOP_FROM_CAROUSEL = 470;
     private static int MID_FROM_WAREHOUSE = 250;
-    private static int BOTTOM_FROM_CAROUSEL = 175;
-    private static int TOP_MID_DIFFERENCE = TOP_FROM_WAREHOUSE - MID_FROM_WAREHOUSE;
+    private static int BOTTOM_FROM_CAROUSEL = 150;
+    private static int RETRACT_TO_ANGLE = 600;
+    private static int DUCK_SCORE = 250;
 
     private static int BASE_ANGLE;
     private double anglerPower = 0.0;
@@ -38,14 +35,19 @@ public class Lift implements Subsystem{
         MANUAL_DOWN,
         CAROUSEL_TOP,
         CAROUSEL_MID,
-        CAROUSEL_BOTTOM
+        CAROUSEL_BOTTOM,
+        ADJUST_DOWN,
+        DUCK
     }
 
     public enum ExtensionState {
         EXTEND_TO_ANGLE,
         IDLE,
-        MANUAL_OUT,
-        MANUAL_IN
+        OUT,
+        IN,
+        HOMING,
+        RETRACT_TO_ANGLE,
+        OUT_AUTO
     }
 
     private AngleState state = AngleState.BOTTOM;
@@ -62,6 +64,8 @@ public class Lift implements Subsystem{
         retractionLimit.setMode(DigitalChannel.Mode.INPUT);
         liftLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        angler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        angler.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         //angler.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -114,6 +118,12 @@ public class Lift implements Subsystem{
 
                 break;
 
+            case DUCK:
+                angler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                setAnglerPosition(-1.0, DUCK_SCORE);
+
+                break;
+
             case IDLE:
                 angler.setPower(0.0);
                 angler.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -144,22 +154,45 @@ public class Lift implements Subsystem{
                 setAnglerPosition(-1.0, BOTTOM_FROM_CAROUSEL);
                 break;
 
+            case ADJUST_DOWN:
+                angler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                setAnglerPositionDown(1.0, 10);
+                break;
         }
+
+
+
 
         switch (extensionState){
             case IDLE:
                 setLiftPower(0.0);
                 break;
             case EXTEND_TO_ANGLE:
-                setExtensionPosition(1.0, 350);
+                extendToPosition(-1.0, 350); //425
+                //setExtensionState(ExtensionState.IDLE);
                 break;
-            case MANUAL_IN:
+            case IN:
                 setLiftPower(1.0);
                 break;
-            case MANUAL_OUT:
+            case OUT:
+                setLiftMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 setLiftPower(-1.0);
                 break;
+            case HOMING:
+                retractToPosition(1.0, RETRACT_TO_ANGLE);
+                setAnglerState(AngleState.BOTTOM);
+                fullyRetract();
+                //setExtensionState(ExtensionState.IDLE);
+                break;
+            case OUT_AUTO:
+                setLiftPower(-0.25);
+                break;
+
         }
+
+
+
+
     }
 
     public void setLiftPower(double newLiftPower){
@@ -174,7 +207,7 @@ public class Lift implements Subsystem{
         liftRight.setMode(mode);
     }
 
-    public void extendToPosition(int counts, double power) {
+    /*public void extendOut(int counts, double power) {
         LinearOpMode linearOpMode = (LinearOpMode) opMode;
         setLiftPower(power);
 
@@ -186,6 +219,8 @@ public class Lift implements Subsystem{
 
         setLiftPower(0.0);
     }
+    */
+
 
     /*public void extendToPosition(int counts) {
         LinearOpMode linearOpMode = (LinearOpMode) opMode;
@@ -254,12 +289,16 @@ public class Lift implements Subsystem{
         return state;
     }
 
+    public ExtensionState getExtensionState () {return extensionState;}
+
     public int getLiftPosition(){
-        return liftLeft.getCurrentPosition();
+
+        //return -liftLeft.getCurrentPosition();
+        return liftRight.getCurrentPosition();
     }
 
     public int getLiftLeftPosition(){
-        return liftLeft.getCurrentPosition();
+        return -liftLeft.getCurrentPosition();
     }
 
     public int getLiftRightPosition(){
@@ -277,10 +316,35 @@ public class Lift implements Subsystem{
         }
     }
 
-    public void setExtensionPosition (double power, int encoderCounts){
+    public void setAnglerPositionDown (double power, int encoderCounts){
+        angler.setPower(power);
+        int startingAnglePosition = getAnglerPosition();
+
+        if (getAnglerPosition() < startingAnglePosition - (-encoderCounts)){
+            setAnglerState(AngleState.IDLE);
+        }
+    }
+
+    public void extendToPosition(double power, int encoderCounts){
         setLiftMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setLiftPower(power);
-        if (getLiftPosition() > encoderCounts){
+        if (getLiftRightPosition() > encoderCounts){ //Swapped from getLiftPosition to getLiftRightPosition
+            setExtensionState(ExtensionState.IDLE);
+        }
+    }
+
+    public void retractToPosition (double power, int encoderCounts){
+        setLiftMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        setLiftPower(power);
+        int startingLiftPosition = getLiftPosition();
+        if (getLiftPosition() < startingLiftPosition - encoderCounts){
+            setExtensionState(ExtensionState.IDLE);
+        }
+    }
+
+    public void fullyRetract(){
+        setLiftPower(1.0);
+        if (!getRetractionLimitValue()){
             setExtensionState(ExtensionState.IDLE);
         }
     }

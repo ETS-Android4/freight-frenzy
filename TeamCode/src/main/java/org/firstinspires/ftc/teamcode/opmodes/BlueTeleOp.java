@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.opmodes.autos.RobotAuto;
 import org.firstinspires.ftc.teamcode.subsystems.CarouselManipulator;
 import org.firstinspires.ftc.teamcode.subsystems.Depositor;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -35,6 +34,19 @@ public class BlueTeleOp extends RobotOpMode {
 
         drive.cartesianDrive(gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.left_stick_y);
 
+
+        if (lift.getExtensionState() == Lift.ExtensionState.IDLE){
+            depositor.freightCheck();
+        }
+
+        if (depositor.getStorageState() == Depositor.storageState.IN){
+            intake.setIntakeState(Intake.IntakeState.OUT);
+            gamepad1.rumble(500);
+            //gamepad1.rumble(1.0, 1.0, 1000);
+            gamepad2.rumble(500);
+            depositor.setStorageState(Depositor.storageState.STORED);
+        }
+
         if (epicGamer1.RIGHT_BUMPER.pressed()){
             if (intake.getIntakeState() != Intake.IntakeState.IN){
                 intake.setIntakeState(Intake.IntakeState.IN);
@@ -56,34 +68,40 @@ public class BlueTeleOp extends RobotOpMode {
         if (epicGamer1.X.pressed()){
             depositor.setDepositorState(Depositor.depositorState.SCORING);
         }
-        if(epicGamer2.X.pressed()){
-            depositor.setDepositorState(Depositor.depositorState.RESTING);
+
+        if(epicGamer2.X.pressed()) {
+            if (depositor.getDepositorState() == Depositor.depositorState.SCORING) {
+                depositor.setDepositorState(Depositor.depositorState.RESTING);
+            }
+            else {
+                depositor.setDepositorState(Depositor.depositorState.SCORING);
+            }
+
         }
 
         if (epicGamer1.DPAD_UP.pressed()){
             intake.setIntakeState(Intake.IntakeState.UP);
         }
 
-
         if (gamepad2.right_trigger != 0){
-            lift.setLiftPower(1.0);
+            lift.setExtensionState(Lift.ExtensionState.OUT);
         }
-
         else if (gamepad2.left_trigger != 0 && lift.getRetractionLimitValue()){
-            lift.setLiftPower(-1.0);
+            lift.setExtensionState(Lift.ExtensionState.IN);
             depositor.setDepositorState(Depositor.depositorState.RESTING);
         }
-
-        else {
-            lift.setLiftPower(0.0);
+        else if (lift.getExtensionState() != Lift.ExtensionState.EXTEND_TO_ANGLE && lift.getExtensionState() != Lift.ExtensionState.HOMING) {
+            lift.setExtensionState(Lift.ExtensionState.IDLE);
         }
 
 
         if (epicGamer1.DPAD_LEFT.state){
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
+            intake.setIntakeState(Intake.IntakeState.IN);
         }
         if (epicGamer1.DPAD_RIGHT.state){
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.SCORING);
+            intake.setIntakeState(Intake.IntakeState.UP);
         }
         if (epicGamer1.DPAD_DOWN.state){
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
@@ -98,6 +116,16 @@ public class BlueTeleOp extends RobotOpMode {
             }
         }
 
+        if (epicGamer2.LEFT_BUMPER.pressed()){
+            depositor.setDepositorState(Depositor.depositorState.RESTING);
+            lift.setExtensionState(Lift.ExtensionState.HOMING);
+            depositor.setStorageState(Depositor.storageState.NONE);
+        }
+
+        if (epicGamer2.RIGHT_BUMPER.pressed()){
+            lift.setAnglerState(Lift.AngleState.ADJUST_DOWN);
+        }
+
         switch (anglerSwitch){
             case AUTO:
                 if (epicGamer2.A.pressed()){
@@ -105,12 +133,19 @@ public class BlueTeleOp extends RobotOpMode {
                     depositor.setDepositorState(Depositor.depositorState.RESTING);
                 }
                 if (epicGamer2.B.pressed()){
+                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.MID);
                     depositor.setDepositorState(Depositor.depositorState.MID_ANGLE);
                 }
                 if (epicGamer2.Y.pressed()) {
+                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.TOP);
                     depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
+                }
+                if (epicGamer2.DPAD_LEFT.pressed()){
+                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                    lift.setAnglerState(Lift.AngleState.DUCK);
+                    depositor.setDepositorState(Depositor.depositorState.DUCK_ANGLE);
                 }
                 break;
             case MANUAL:
@@ -134,6 +169,12 @@ public class BlueTeleOp extends RobotOpMode {
         telemetry.addData("Angler Power: ", lift.getAnglerPower());
         telemetry.addData("Depositor Pivot Position: ", depositor.getDepositorPivotPosition());
         telemetry.addData("Retraction Limit: ", !lift.getRetractionLimitValue());
+        //telemetry.addData("Detection Distance Inches: ", depositor.getDetectionDistanceInches());
+        //telemetry.addData("Detection Distance Centimeters: ", depositor.getDetectionDistanceCentimeter());
+        telemetry.addData("Extension Through Bore Encoder:", lift.getLiftRightPosition());
+        telemetry.addData("Angle Adjuster Through Bore Encoder:", intake.getIntakePosition());
+        telemetry.addData("Extension State: ", lift.getExtensionState());
+
 
     }
 }

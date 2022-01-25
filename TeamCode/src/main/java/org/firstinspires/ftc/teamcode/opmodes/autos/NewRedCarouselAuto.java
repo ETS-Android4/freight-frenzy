@@ -9,33 +9,37 @@ import org.firstinspires.ftc.teamcode.subsystems.Depositor;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
+import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
 
 @Config
 @Autonomous
-public class BlueCarouselAuto extends RobotAuto {
+public class NewRedCarouselAuto extends RobotAuto {
 
-    BlueCarouselTeamElementPipeline.Location elementLocation = BlueCarouselTeamElementPipeline.Location.RIGHT;
-    private static int TIME_TO_DUCK_SCORE = 3000;
+    RedCarouselTeamElementPipeline.Location elementLocation = RedCarouselTeamElementPipeline.Location.RIGHT;
+    private static int TIME_TO_DUCK_SCORE = 3500;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1625; //2530
+    private static int EXTEND_TO_TOP = 1600; //2530
     private static int EXTEND_TO_MID = 1550; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
-    private static int STRAFE_TO_STORAGE = 1600;
-    private static int TURN_IN_STORAGE = 350;
+    private static int STRAFE_TO_STORAGE = 400; //Formally 1200
+    private static int TURN_TO_DUCK_SCORE = 210;
+    private static int TURN_IN_STORAGE = 140; //Formally 350
+    private static int TURN_TO_COLLECT_DUCK = 250;
+    private static int STRAFE_IN_STORAGE = 400;
+    private static int STRAFE_TO_DUCK_COLLECT = 750;
 
 //gamer - Randall Delafuente
 
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
-        vision.setRobotLocation(Vision.robotLocation.BLUE_CAROUSEL);
+        vision.setRobotLocation(Vision.robotLocation.RED_CAROUSEL);
         vision.enable();
 
 
         while (!opModeIsActive() && !isStopRequested()){
-            telemetry.addData("Element Location: ", vision.getElementPipelineBlueCarousel().getLocation());
+            telemetry.addData("Element Location: ", vision.getElementPipelineRedCarousel().getLocation());
             telemetry.update();
         }
 
@@ -44,11 +48,11 @@ public class BlueCarouselAuto extends RobotAuto {
 
         lift.setExtensionState(Lift.ExtensionState.IDLE);
         //lift.setExtensionState(Lift.ExtensionState.AUTONOMOUS);
-        duckScorer.setAllianceSide(CarouselManipulator.Alliance.BLUE);
+        duckScorer.setAllianceSide(CarouselManipulator.Alliance.RED);
 
         updateThread.start();
 
-        elementLocation = vision.getElementPipelineBlueCarousel().getLocation();
+        elementLocation = vision.getElementPipelineRedCarousel().getLocation();
 
         switch (elementLocation){
             case RIGHT:
@@ -89,31 +93,43 @@ public class BlueCarouselAuto extends RobotAuto {
         //Set the position of the front intake bars to be down
         //Turn on intake
         intake.setIntakeState(Intake.IntakeState.IN);
+        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
 
         //Wait x seconds
-        sleep(4000);
+        sleep(2000);
 
-        intake.setIntakeState(Intake.IntakeState.OFF);
+        encoderDrive(0.0, -0.5, 0.0, TURN_TO_COLLECT_DUCK);
 
-        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
+        sleep(500);
+
+        encoderDrive(0.0, 0.5, 0.0, TURN_TO_COLLECT_DUCK);
+
+        sleep(500);
+
+        encoderDrive(-0.5,0,0, STRAFE_TO_DUCK_COLLECT);
+
+        sleep(500);
+
+        intake.setIntakeState(Intake.IntakeState.UP);
+
+        sleep(750);
+
+        encoderDrive(-0.5,0,0, STRAFE_TO_STORAGE);
+
+        sleep(500);
+
+        //Move to storage unit LOL
+        encoderDrive(0.0, 0.5, 0, TURN_TO_DUCK_SCORE);
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
         homeLift();
 
-        sleep(1500);
+        encoderDrive(0.0, 0.5, 0, TURN_IN_STORAGE);
 
-        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
+        sleep(250);
 
-        intake.setIntakeState(Intake.IntakeState.UP);
-
-
-
-        //Move to storage unit LOL
-
-        encoderDrive(0.5,0,0, STRAFE_TO_STORAGE);
-
-        encoderDrive(0.0, -0.5, 0, TURN_IN_STORAGE);
+        encoderDrive(-0.5, 0, 0, STRAFE_IN_STORAGE);
     }
 
     public void homeLift(){

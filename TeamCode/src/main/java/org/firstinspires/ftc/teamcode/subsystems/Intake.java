@@ -57,6 +57,10 @@ public class Intake implements Subsystem {
         return state;
     }
 
+    public int getIntakePosition(){
+        return intakeMotor.getCurrentPosition();
+    }
+
     public void setIntakeState(IntakeState state) {
         this.state = state;
     }

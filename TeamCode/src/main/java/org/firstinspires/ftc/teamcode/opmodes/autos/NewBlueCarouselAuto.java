@@ -13,17 +13,21 @@ import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
 
 @Config
 @Autonomous
-public class BlueCarouselAuto extends RobotAuto {
+public class NewBlueCarouselAuto extends RobotAuto {
 
     BlueCarouselTeamElementPipeline.Location elementLocation = BlueCarouselTeamElementPipeline.Location.RIGHT;
-    private static int TIME_TO_DUCK_SCORE = 3000;
+    private static int TIME_TO_DUCK_SCORE = 3500;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
     private static int EXTEND_TO_TOP = 1625; //2530
     private static int EXTEND_TO_MID = 1550; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
-    private static int STRAFE_TO_STORAGE = 1600;
-    private static int TURN_IN_STORAGE = 350;
+    private static int STRAFE_TO_STORAGE = 400; //Formally 1200
+    private static int TURN_TO_DUCK_SCORE = 175;
+    private static int TURN_IN_STORAGE = 175; //Formally 350
+    private static int TURN_TO_COLLECT_DUCK = 250;
+    private static int STRAFE_IN_STORAGE = 225;
+    private static int STRAFE_TO_DUCK_COLLECT = 800;
 
 //gamer - Randall Delafuente
 
@@ -89,31 +93,40 @@ public class BlueCarouselAuto extends RobotAuto {
         //Set the position of the front intake bars to be down
         //Turn on intake
         intake.setIntakeState(Intake.IntakeState.IN);
+        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
 
         //Wait x seconds
-        sleep(4000);
+        sleep(2000);
 
-        intake.setIntakeState(Intake.IntakeState.OFF);
+        encoderDrive(0.0, 0.5, 0.0, TURN_TO_COLLECT_DUCK);
 
-        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
+        sleep(500);
+
+        encoderDrive(0.0, -0.5, 0.0, TURN_TO_COLLECT_DUCK);
+
+        sleep(500);
+
+        encoderDrive(0.5,0,0, STRAFE_TO_DUCK_COLLECT);
+        intake.setIntakeState(Intake.IntakeState.UP);
+
+        sleep(750);
+
+        encoderDrive(0.5,0,0, STRAFE_TO_STORAGE);
+
+        sleep(500);
+
+        //Move to storage unit LOL
+        encoderDrive(0.0, -0.5, 0, TURN_TO_DUCK_SCORE);
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
         homeLift();
 
-        sleep(1500);
-
-        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
-
-        intake.setIntakeState(Intake.IntakeState.UP);
-
-
-
-        //Move to storage unit LOL
-
-        encoderDrive(0.5,0,0, STRAFE_TO_STORAGE);
-
         encoderDrive(0.0, -0.5, 0, TURN_IN_STORAGE);
+
+        sleep(250);
+
+        encoderDrive(0.5, 0, 0, STRAFE_IN_STORAGE);
     }
 
     public void homeLift(){

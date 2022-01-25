@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.motors.NeveRest20Gearmotor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.Hardware;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,19 +21,29 @@ public class Drivetrain implements Subsystem {
     public static final MotorConfigurationType MOTOR_CONFIG = MotorConfigurationType.getMotorType(NeveRest20Gearmotor.class);
     private static final double TICKS_PER_REV = MOTOR_CONFIG.getTicksPerRev();
 
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.9, 0, 0.8);
+
 
     private DcMotor leftFront, leftBack, rightFront, rightBack;
+    BNO055IMU imu;
+
+
     private double[] powers = new double[4];
 
 
     private OpMode opMode;
 
     public Drivetrain(HardwareMap hardwareMap) {
-
         leftFront = hardwareMap.get(DcMotor.class, "FL");
         leftBack = hardwareMap.get(DcMotor.class, "BL");
         rightFront = hardwareMap.get(DcMotor.class, "FR");
         rightBack = hardwareMap.get(DcMotor.class, "BR");
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
     }
 
     public void setMotorPowers(double v, double v1, double v2, double v3){
@@ -87,6 +101,15 @@ public class Drivetrain implements Subsystem {
         }
         stop();
     }
+
+    /*
+    public void turnToAngle (double turn, double angle){
+        double output;
+
+
+    }
+
+     */
 
     public void singleEncoderDrive(double x, double y, double turn, int counts) {
         LinearOpMode linearOpMode = (LinearOpMode) opMode;
