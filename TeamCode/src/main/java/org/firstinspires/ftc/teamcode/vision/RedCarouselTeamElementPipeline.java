@@ -20,11 +20,11 @@ public class RedCarouselTeamElementPipeline extends OpenCvPipeline {
     private Location location;
 
     static final Rect RIGHT_ROI = new Rect(
-            new Point(165, 80), //Formally 35
+            new Point(165, 110), //Formally 35
             new Point(120, 140)); //Formally 75
 
     static final Rect LEFT_ROI = new Rect(
-            new Point(80, 77), //Formally 35
+            new Point(80, 110), //Formally 35
             new Point(30, 150)); //Formally 75
     static double PERCENT_COLOR_THRESHOLD = 0.4;
 

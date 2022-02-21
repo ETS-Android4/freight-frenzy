@@ -49,7 +49,7 @@ public class CarouselManipulator implements Subsystem {
                         break;
 
                     case REST:
-                        turretServo.setPosition(CAROUSEL_REST_BLUE);
+                        turretServo.setPosition(CAROUSEL_SCORING_BLUE);
                         carouselSpinner.setPower(0.0);
                         break;
 
@@ -67,7 +67,7 @@ public class CarouselManipulator implements Subsystem {
                         break;
 
                     case REST:
-                        turretServo.setPosition(CAROUSEL_REST_RED);
+                        turretServo.setPosition(CAROUSEL_SCORING_RED);
                         carouselSpinner.setPower(0.0);
                         break;
 

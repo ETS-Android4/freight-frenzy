@@ -20,13 +20,13 @@ public class NewBlueCarouselAuto extends RobotAuto {
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
     private static int EXTEND_TO_TOP = 1625; //2530
-    private static int EXTEND_TO_MID = 1550; //2400
+    private static int EXTEND_TO_MID = 1600; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
     private static int STRAFE_TO_STORAGE = 400; //Formally 1200
-    private static int TURN_TO_DUCK_SCORE = 175;
-    private static int TURN_IN_STORAGE = 175; //Formally 350
-    private static int TURN_TO_COLLECT_DUCK = 250;
-    private static int STRAFE_IN_STORAGE = 225;
+    private static int TURN_TO_DUCK_SCORE = 125;
+    private static int TURN_IN_STORAGE = 300; //Formally 350
+    private static int TURN_TO_COLLECT_DUCK = 300;
+    private static int STRAFE_IN_STORAGE = 300;
     private static int STRAFE_TO_DUCK_COLLECT = 800;
 
 //gamer - Randall Delafuente
@@ -111,16 +111,16 @@ public class NewBlueCarouselAuto extends RobotAuto {
 
         sleep(750);
 
-        encoderDrive(0.5,0,0, STRAFE_TO_STORAGE);
-
-        sleep(500);
-
         //Move to storage unit LOL
         encoderDrive(0.0, -0.5, 0, TURN_TO_DUCK_SCORE);
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
         homeLift();
+
+        encoderDrive(0.5,0,0, STRAFE_TO_STORAGE);
+
+        sleep(500);
 
         encoderDrive(0.0, -0.5, 0, TURN_IN_STORAGE);
 

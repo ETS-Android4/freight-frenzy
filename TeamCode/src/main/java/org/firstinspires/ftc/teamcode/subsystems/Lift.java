@@ -16,12 +16,14 @@ public class Lift implements Subsystem{
 
 
     private static int TOP_FROM_WAREHOUSE = 460; //Previously 475
-    private static int MID_FROM_CAROUSEL = 265;
+    private static int MID_FROM_CAROUSEL = 278;
     private static int TOP_FROM_CAROUSEL = 470;
     private static int MID_FROM_WAREHOUSE = 250;
     private static int BOTTOM_FROM_CAROUSEL = 150;
     private static int RETRACT_TO_ANGLE = 600;
     private static int DUCK_SCORE = 250;
+    private static int CAP_SCORE = 375;
+    private static int CAP_COLLECT = 50;
 
     private static int BASE_ANGLE;
     private double anglerPower = 0.0;
@@ -37,7 +39,9 @@ public class Lift implements Subsystem{
         CAROUSEL_MID,
         CAROUSEL_BOTTOM,
         ADJUST_DOWN,
-        DUCK
+        DUCK,
+        CAP_SCORE,
+        CAP_COLLECT
     }
 
     public enum ExtensionState {
@@ -47,7 +51,8 @@ public class Lift implements Subsystem{
         IN,
         HOMING,
         RETRACT_TO_ANGLE,
-        OUT_AUTO
+        OUT_AUTO,
+        CAP_COLLECT
     }
 
     private AngleState state = AngleState.BOTTOM;
@@ -158,6 +163,17 @@ public class Lift implements Subsystem{
                 angler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 setAnglerPositionDown(1.0, 10);
                 break;
+
+            case CAP_SCORE:
+                angler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                setAnglerPosition(-1.0, CAP_SCORE);
+                break;
+
+            case CAP_COLLECT:
+                angler.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                setAnglerPosition(-1.0, CAP_COLLECT);
+                break;
+
         }
 
 
@@ -187,7 +203,10 @@ public class Lift implements Subsystem{
             case OUT_AUTO:
                 setLiftPower(-0.25);
                 break;
-
+            case CAP_COLLECT:
+                setLiftMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                extendToPosition(-1.0, 400);
+                break;
         }
 
 

@@ -13,13 +13,13 @@ import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
 
 @Config
 @Autonomous
-public class NewRedCarouselAuto extends RobotAuto {
+public class RedFireWiresAuto extends RobotAuto {
 
     RedCarouselTeamElementPipeline.Location elementLocation = RedCarouselTeamElementPipeline.Location.RIGHT;
     private static int TIME_TO_DUCK_SCORE = 3500;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1600; //2530
+    private static int EXTEND_TO_TOP = 1650; //2530
     private static int EXTEND_TO_MID = 1550; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
     private static int STRAFE_TO_STORAGE = 400; //Formally 1200
@@ -28,6 +28,9 @@ public class NewRedCarouselAuto extends RobotAuto {
     private static int TURN_TO_COLLECT_DUCK = 250;
     private static int STRAFE_IN_STORAGE = 450;
     private static int STRAFE_TO_DUCK_COLLECT = 750;
+    private static int TURN_TOWARDS_WAREHOUSE = 450;
+    private static int STRAFE_AGAINST_WALL = 450;
+    private static int DRIVE_TO_WAREHOUSE = 3300;
 
 //gamer - Randall Delafuente
 
@@ -121,15 +124,30 @@ public class NewRedCarouselAuto extends RobotAuto {
 
         homeLift();
 
-        encoderDrive(-0.5,0,0, STRAFE_TO_STORAGE);
-
-        sleep(500);
-
-        encoderDrive(0.0, 0.5, 0, TURN_IN_STORAGE);
+        encoderDrive(0.0, -0.5, 0, TURN_TO_DUCK_SCORE);
 
         sleep(250);
 
-        encoderDrive(-0.5, 0, 0, STRAFE_IN_STORAGE);
+        encoderDrive(0.0, 0.0, 0.5, 200);
+
+        sleep(250);
+
+        encoderDrive(0.5,0,0, STRAFE_TO_DUCK_COLLECT);
+
+        sleep(250);
+
+        encoderDrive(0.0, 0.5, 0.0, TURN_TOWARDS_WAREHOUSE);
+
+        sleep(250);
+
+        encoderDrive(0.5, 0.0, 0.0, STRAFE_AGAINST_WALL);
+
+        sleep(3250);
+
+        encoderDrive(0.0, 0.0, 0.8, DRIVE_TO_WAREHOUSE);
+
+
+
     }
 
     public void homeLift(){

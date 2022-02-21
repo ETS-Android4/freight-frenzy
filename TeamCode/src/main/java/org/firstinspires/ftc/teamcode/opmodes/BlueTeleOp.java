@@ -27,6 +27,8 @@ public class BlueTeleOp extends RobotOpMode {
     }
 
     private BlueTeleOp.AngleModeBlue anglerSwitch = BlueTeleOp.AngleModeBlue.AUTO;
+    private int CARGO_THRESHOLD = 160;
+    //private int BOX_THRESHOLD = 10;
 
     @Override
     public void loop() {
@@ -96,12 +98,14 @@ public class BlueTeleOp extends RobotOpMode {
 
 
         if (epicGamer1.DPAD_LEFT.state){
+            intake.setIntakeState(Intake.IntakeState.UP);
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
-            intake.setIntakeState(Intake.IntakeState.IN);
+            //intake.setIntakeState(Intake.IntakeState.IN);
         }
         if (epicGamer1.DPAD_RIGHT.state){
-            duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.SCORING);
             intake.setIntakeState(Intake.IntakeState.UP);
+            duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.SCORING);
+            //intake.setIntakeState(Intake.IntakeState.UP);
         }
         if (epicGamer1.DPAD_DOWN.state){
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
@@ -126,6 +130,15 @@ public class BlueTeleOp extends RobotOpMode {
             lift.setAnglerState(Lift.AngleState.ADJUST_DOWN);
         }
 
+        if(epicGamer2.LEFT_JOYSTICK_PUSH.pressed()){
+            lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+            lift.setAnglerState(Lift.AngleState.CAP_COLLECT);
+        }
+
+        if(epicGamer2.RIGHT_JOYSTICK_PUSH.pressed()){
+            lift.setAnglerState(Lift.AngleState.CAP_SCORE);
+        }
+
         switch (anglerSwitch){
             case AUTO:
                 if (epicGamer2.A.pressed()){
@@ -138,9 +151,24 @@ public class BlueTeleOp extends RobotOpMode {
                     depositor.setDepositorState(Depositor.depositorState.MID_ANGLE);
                 }
                 if (epicGamer2.Y.pressed()) {
-                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
-                    lift.setAnglerState(Lift.AngleState.TOP);
-                    depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
+
+                    if (depositor.getFreightBlue() > CARGO_THRESHOLD){
+                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                        lift.setAnglerState(Lift.AngleState.TOP);
+                        depositor.setDepositorState(Depositor.depositorState.CARGO_CRADLE);
+                    }
+                    /*else if (CARGO_THRESHOLD < depositor.getFreightRed() && depositor.getFreightRed() < BOX_THRESHOLD){
+                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                        lift.setAnglerState(Lift.AngleState.TOP);
+                        depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
+                    }
+                     */
+                    else {
+                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                        lift.setAnglerState(Lift.AngleState.TOP);
+                        depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
+                    }
+
                 }
                 if (epicGamer2.DPAD_LEFT.pressed()){
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
@@ -174,6 +202,7 @@ public class BlueTeleOp extends RobotOpMode {
         telemetry.addData("Extension Through Bore Encoder:", lift.getLiftRightPosition());
         telemetry.addData("Angle Adjuster Through Bore Encoder:", intake.getIntakePosition());
         telemetry.addData("Extension State: ", lift.getExtensionState());
+        telemetry.addData("Color Reading: ", depositor.getFreightBlue());
 
 
     }

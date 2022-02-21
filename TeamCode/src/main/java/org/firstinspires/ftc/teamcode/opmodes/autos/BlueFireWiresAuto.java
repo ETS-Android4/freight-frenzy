@@ -9,37 +9,40 @@ import org.firstinspires.ftc.teamcode.subsystems.Depositor;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
+import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
 
 @Config
 @Autonomous
-public class NewRedCarouselAuto extends RobotAuto {
+public class BlueFireWiresAuto extends RobotAuto {
 
-    RedCarouselTeamElementPipeline.Location elementLocation = RedCarouselTeamElementPipeline.Location.RIGHT;
+    BlueCarouselTeamElementPipeline.Location elementLocation = BlueCarouselTeamElementPipeline.Location.RIGHT;
     private static int TIME_TO_DUCK_SCORE = 3500;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1600; //2530
-    private static int EXTEND_TO_MID = 1550; //2400
+    private static int EXTEND_TO_TOP = 1625; //2530
+    private static int EXTEND_TO_MID = 1600; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
     private static int STRAFE_TO_STORAGE = 400; //Formally 1200
-    private static int TURN_TO_DUCK_SCORE = 145; //235
-    private static int TURN_IN_STORAGE = 230; //Formally 140
+    private static int TURN_TO_DUCK_SCORE = 125;
+    private static int TURN_IN_STORAGE = 275; //Formally 350
     private static int TURN_TO_COLLECT_DUCK = 250;
-    private static int STRAFE_IN_STORAGE = 450;
-    private static int STRAFE_TO_DUCK_COLLECT = 750;
+    private static int STRAFE_IN_STORAGE = 225;
+    private static int STRAFE_TO_DUCK_COLLECT = 800;
+    private static int TURN_TOWARDS_WAREHOUSE = 450;
+    private static int STRAFE_AGAINST_WALL = 450;
+    private static int DRIVE_TO_WAREHOUSE = 3300;
 
 //gamer - Randall Delafuente
 
     @Override
     public void runOpMode() throws InterruptedException {
         initialize();
-        vision.setRobotLocation(Vision.robotLocation.RED_CAROUSEL);
+        vision.setRobotLocation(Vision.robotLocation.BLUE_CAROUSEL);
         vision.enable();
 
 
         while (!opModeIsActive() && !isStopRequested()){
-            telemetry.addData("Element Location: ", vision.getElementPipelineRedCarousel().getLocation());
+            telemetry.addData("Element Location: ", vision.getElementPipelineBlueCarousel().getLocation());
             telemetry.update();
         }
 
@@ -48,11 +51,11 @@ public class NewRedCarouselAuto extends RobotAuto {
 
         lift.setExtensionState(Lift.ExtensionState.IDLE);
         //lift.setExtensionState(Lift.ExtensionState.AUTONOMOUS);
-        duckScorer.setAllianceSide(CarouselManipulator.Alliance.RED);
+        duckScorer.setAllianceSide(CarouselManipulator.Alliance.BLUE);
 
         updateThread.start();
 
-        elementLocation = vision.getElementPipelineRedCarousel().getLocation();
+        elementLocation = vision.getElementPipelineBlueCarousel().getLocation();
 
         switch (elementLocation){
             case RIGHT:
@@ -98,38 +101,48 @@ public class NewRedCarouselAuto extends RobotAuto {
         //Wait x seconds
         sleep(2000);
 
-        encoderDrive(0.0, -0.5, 0.0, TURN_TO_COLLECT_DUCK);
-
-        sleep(500);
-
         encoderDrive(0.0, 0.5, 0.0, TURN_TO_COLLECT_DUCK);
 
         sleep(500);
 
-        encoderDrive(-0.5,0,0, STRAFE_TO_DUCK_COLLECT);
+        encoderDrive(0.0, -0.5, 0.0, TURN_TO_COLLECT_DUCK);
 
-        sleep(550);
+        sleep(500);
 
+        encoderDrive(0.5,0,0, STRAFE_TO_DUCK_COLLECT);
         intake.setIntakeState(Intake.IntakeState.UP);
 
         sleep(750);
 
         //Move to storage unit LOL
-        encoderDrive(0.0, 0.5, 0, TURN_TO_DUCK_SCORE);
+        encoderDrive(0.0, -0.5, 0, TURN_TO_DUCK_SCORE);
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
         homeLift();
 
-        encoderDrive(-0.5,0,0, STRAFE_TO_STORAGE);
-
-        sleep(500);
-
-        encoderDrive(0.0, 0.5, 0, TURN_IN_STORAGE);
+        encoderDrive(0.0, 0.5, 0, TURN_TO_DUCK_SCORE);
 
         sleep(250);
 
-        encoderDrive(-0.5, 0, 0, STRAFE_IN_STORAGE);
+        encoderDrive(0.0, 0.0, 0.5, 200);
+
+        sleep(250);
+
+        encoderDrive(-0.5,0,0, STRAFE_TO_DUCK_COLLECT);
+
+        sleep(250);
+
+        encoderDrive(0.0, -0.5, 0.0, TURN_TOWARDS_WAREHOUSE);
+
+        sleep(250);
+
+        encoderDrive(-0.5, 0.0, 0.0, STRAFE_AGAINST_WALL);
+
+        sleep(250);
+
+        encoderDrive(0.0, 0.0, 0.8, DRIVE_TO_WAREHOUSE);
+
     }
 
     public void homeLift(){
@@ -201,7 +214,7 @@ public class NewRedCarouselAuto extends RobotAuto {
             if (Math.abs(lift.getLiftPosition()) > counts) {
                 break;
             }
-            else if (getRuntime() - startTime > 4.0){
+            else if (getRuntime() - startTime > 3.0){
                 break;
             }
         }

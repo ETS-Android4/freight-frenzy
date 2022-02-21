@@ -34,10 +34,10 @@ public class Drivetrain implements Subsystem {
     private OpMode opMode;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        leftFront = hardwareMap.get(DcMotor.class, "FL");
-        leftBack = hardwareMap.get(DcMotor.class, "BL");
-        rightFront = hardwareMap.get(DcMotor.class, "FR");
-        rightBack = hardwareMap.get(DcMotor.class, "BR");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftRear");
+        rightFront = hardwareMap.get(DcMotor.class, "rightRear");
+        rightBack = hardwareMap.get(DcMotor.class, "rightFront");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;

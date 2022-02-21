@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -19,13 +20,21 @@ public class Depositor implements Subsystem{
     private static double BALANCE_FOR_TOP = 0.435;
     private static double BALANCE_FOR_MID = 0.35;
     private static double DUCK_ANGLE = 0.435;
+    private static double CARGO_CRADLE = 0.26;
 
     public enum depositorState{
         SCORING,
         RESTING,
         MID_ANGLE,
         TOP_ANGLE,
-        DUCK_ANGLE
+        DUCK_ANGLE,
+        CARGO_CRADLE
+    }
+
+    public enum freightType{
+        CARGO,
+        BOX,
+        NONE
     }
 
     public enum storageState{
@@ -59,7 +68,10 @@ public class Depositor implements Subsystem{
                 break;
             case DUCK_ANGLE:
                 depositorServo.setPosition(DUCK_ANGLE);
-
+                break;
+            case CARGO_CRADLE:
+                depositorServo.setPosition(CARGO_CRADLE);
+                break;
         }
     }
 
@@ -92,6 +104,10 @@ public class Depositor implements Subsystem{
 
     public void setStorageState(storageState newState){
         freightState = newState;
+    }
+
+    public int getFreightBlue(){
+        return freightDetector.blue();
     }
 
     public double getDepositorPivotPosition () { return depositorServo.getPosition(); }
