@@ -4,39 +4,49 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.MarkerCallback;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.teamcode.subsystems.CarouselManipulator;
 import org.firstinspires.ftc.teamcode.subsystems.Depositor;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.vision.BlueWarehouseTeamElementPipeline;
 
+@Autonomous
 public class BlueWarehouseAuto extends RobotAuto {
 
     BlueWarehouseTeamElementPipeline.Location elementLocation = BlueWarehouseTeamElementPipeline.Location.RIGHT;
 
 
-    public static final Pose2d startPose = new Pose2d(6, 63.25);
-    public static final Pose2d GAP_OUTER_POSE = new Pose2d(12, 65.75, Math.toRadians(90));
-    public static final Pose2d GAP_INNER_POSE = new Pose2d(36, 65.75, Math.toRadians(90));
-    public static final Pose2d SCORE_POSE = new Pose2d(12, 60, Math.toRadians(45));
-    public static final Pose2d PARK_POSE = new Pose2d(36, 36, Math.toRadians(90));
+    public static final Pose2d startPose = new Pose2d(6, 63);
+    public static final Pose2d SCORE_POSE = new Pose2d(-6, 60, Math.toRadians(320));
+    public static final Pose2d GAP_OUTER_POSE = new Pose2d(10, 62, Math.toRadians(255));
+    //public static final Pose2d GAP_INNER_POSE = new Pose2d(36, 60, Math.toRadians(-75));
+    public static final Pose2d GAP_INNER_POSE = new Pose2d(10, 25, Math.toRadians(255));
+    public static final Pose2d PARK_POSE = new Pose2d(36, 36, Math.toRadians(-90));
 
     public Pose2d lastPose = startPose;
     public double lastHeading = 0;
 
+    private static int TURN_TO_WALL = -59;
+
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1625; //2530
+    private static int EXTEND_TO_TOP = 1150; //2530
     private static int EXTEND_TO_MID = 1550; //2400
     private static int EXTEND_TO_BOTTOM = 1510; //2325
-    private static int TIME_TO_DEPOSIT = 1;
+    private static int TIME_TO_DEPOSIT = 1500;
 
     Trajectory toFirstScore;
     Trajectory toWarehouse;
     Trajectory toCollect;
     Trajectory toScore;
     Trajectory toSafePark;
+    Trajectory toFirstWarehouse;
+    Trajectory toGapExit;
+    Trajectory toGapEntrance;
+    Trajectory toOuterField;
 
     private enum CyclingState{
         COLLECTING,
@@ -59,7 +69,8 @@ public class BlueWarehouseAuto extends RobotAuto {
         }
 
         RRdrive.setPoseEstimate(startPose);
-        buildTrajectories();
+
+        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
 
         waitForStart();
 
@@ -67,11 +78,13 @@ public class BlueWarehouseAuto extends RobotAuto {
 
         updateThread.start();
 
+        buildTrajectories();
+
         elementLocation = vision.getElementPipelineBlueWarehouse().getLocation();
 
         //Drive backwards slightly and turn towards shipping hub
 
-        cycleState = CyclingState.DELIVERING;
+        //cycleState = CyclingState.DELIVERING;
         RRdrive.followTrajectory(toFirstScore);
 
         switch (elementLocation){
@@ -106,18 +119,34 @@ public class BlueWarehouseAuto extends RobotAuto {
         }
 
 
+        sleep(2000);
+
+        //RRdrive.turn(Math.toRadians(TURN_TO_WALL));
+
+        //sleep(2000);
+
+        lastPose = RRdrive.getPoseEstimate();
+
+        sleep(500);
         //Turn to be parallel with wall
-        cycleState = CyclingState.TRAVELLING;
+        //cycleState = CyclingState.TRAVELLING;
+        RRdrive.followTrajectory(toGapEntrance);
+
+        sleep(2000);
+
         RRdrive.followTrajectory(toWarehouse);
 
 
         //Strafe until both side mounted sensors reach a certain value
 
+        /*
         while(cycleState != CyclingState.NULL && !isStopRequested() && opModeIsActive()){
             depositor.freightCheck();
 
             switch (cycleState){
                 case TRAVELLING:
+                    RRdrive.followTrajectory(toGapExit);
+                    RRdrive.followTrajectory(toOuterField);
                     RRdrive.followTrajectory(toScore);
                     cycleState = CyclingState.DELIVERING;
                     break;
@@ -125,6 +154,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                 case DELIVERING:
                     extendToScore(Lift.AngleState.TOP);
                     homeLift();
+                    RRdrive.followTrajectory(toGapEntrance);
                     RRdrive.followTrajectory(toWarehouse);
                     cycleState = CyclingState.COLLECTING;
                     break;
@@ -153,6 +183,8 @@ public class BlueWarehouseAuto extends RobotAuto {
         }
 
         RRdrive.followTrajectory(toSafePark);
+
+         */
 
 
 
@@ -188,35 +220,51 @@ public class BlueWarehouseAuto extends RobotAuto {
     void buildTrajectories(){
         toFirstScore = RRdrive.trajectoryBuilder(startPose)
                 .lineToLinearHeading(SCORE_POSE)
-                .addTemporalMarker(0.4, new MarkerCallback() {
-                    @Override
-                    public void onMarkerReached() {
-                        //extendToScore(Lift.AngleState.TOP);
-                    }
-                })
                 .build();
 
-        toWarehouse = RRdrive.trajectoryBuilder(toScore.end())
-                .splineToLinearHeading(GAP_OUTER_POSE, toScore.end().getHeading())
+
+        /*
+        toGapEntrance = RRdrive.trajectoryBuilder(toFirstScore.end().plus(new Pose2d(0, 0, Math.toRadians(TURN_TO_WALL)))) //toScore.end()
+                .lineToConstantHeading(GAP_OUTER_POSE)
+                .build();
+
+         */
+
+
+        toGapEntrance = RRdrive.trajectoryBuilder(lastPose) //toScore.end()
+                .lineToLinearHeading(GAP_OUTER_POSE)
+                .build();
+
+
+        toWarehouse = RRdrive.trajectoryBuilder(toGapEntrance.end())
                 .lineToLinearHeading(GAP_INNER_POSE)
                 .build();
 
+        /*
         toCollect = RRdrive.trajectoryBuilder(toWarehouse.end())
-                .forward(15)
+                .forward(12)
                 .build();
 
-        toScore = RRdrive.trajectoryBuilder(lastPose)
+        toGapExit = RRdrive.trajectoryBuilder(lastPose)
                 .splineToLinearHeading(GAP_INNER_POSE, lastHeading)
+                .build();
+
+        toOuterField = RRdrive.trajectoryBuilder(toGapExit.end())
+                .lineToLinearHeading(GAP_OUTER_POSE)
                 .addSpatialMarker(new Vector2d(20, 60), () -> {
                     intake.setIntakeState(Intake.IntakeState.OFF);
                 })
-                .lineToLinearHeading(GAP_OUTER_POSE)
+                .build();
+
+        toScore = RRdrive.trajectoryBuilder(toOuterField.end())
                 .lineToLinearHeading(SCORE_POSE)
                 .build();
 
         toSafePark = RRdrive.trajectoryBuilder(lastPose)
                 .splineToLinearHeading(PARK_POSE, lastHeading)
                 .build();
+
+         */
 
     }
 

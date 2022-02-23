@@ -24,7 +24,7 @@ public class Drivetrain implements Subsystem {
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(1.9, 0, 0.8);
 
 
-    private DcMotor leftFront, leftBack, rightFront, rightBack;
+    private DcMotor leftFront, leftBack, rightBack, rightFront;
     BNO055IMU imu;
 
 
@@ -84,7 +84,11 @@ public class Drivetrain implements Subsystem {
         double v4 = r * Math.cos(robotAngle) - turn;
 
         setMotorPowers(v2, v3, v4, v1);
+
     }
+
+
+
 
     public void encoderDrive(double x, double y, double turn, int counts) {
         LinearOpMode linearOpMode = (LinearOpMode) opMode;
@@ -146,11 +150,23 @@ public class Drivetrain implements Subsystem {
         setMotorPowers(0 , 0, 0, 0);
     }
 
+    /*
+    public void update() {
+        leftFront.setPower(powers[0]);
+        rightFront.setPower(powers[1]);
+        leftBack.setPower(powers[2]);
+        rightBack.setPower(powers[3]);
+    }
+
+     */
+
     public void update() {
         leftFront.setPower(powers[0]);
         rightFront.setPower(powers[1]);
         leftBack.setPower(powers[2]);
         rightBack.setPower(-powers[3]);
+
+
     }
 
 

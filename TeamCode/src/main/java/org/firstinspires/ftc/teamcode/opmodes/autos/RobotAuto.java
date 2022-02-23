@@ -52,7 +52,7 @@ public class RobotAuto extends LinearOpMode {
         vision = new Vision(hardwareMap);
         depositor = new Depositor(hardwareMap);
 
-        subsystems = new Subsystem[] {drive, intake, lift, duckScorer, vision, depositor, RRdrive};
+        subsystems = new Subsystem[] {intake, lift, duckScorer, vision, depositor, RRdrive};
     }
 
 
