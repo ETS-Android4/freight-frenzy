@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Lift;
 public class Depositor implements Subsystem{
     private Servo depositorServo;
     private RevColorSensorV3 freightDetector;
+    private Servo lockServo;
 
     private static boolean freightCheck;
     private static double SCORING_POSITION = 0.21; // 0.1
@@ -21,6 +22,9 @@ public class Depositor implements Subsystem{
     private static double BALANCE_FOR_MID = 0.35;
     private static double DUCK_ANGLE = 0.435;
     private static double CARGO_CRADLE = 0.26;
+    public static double LOCK = 0.35;
+    public static double UNLOCK = 1.0;
+    public static double DUCK = 0.0;
 
     public enum depositorState{
         SCORING,
@@ -37,6 +41,12 @@ public class Depositor implements Subsystem{
         NONE
     }
 
+    public enum lockState{
+        LOCK,
+        UNLOCK,
+        DUCK
+    }
+
     public enum storageState{
         STORED,
         IN,
@@ -46,10 +56,12 @@ public class Depositor implements Subsystem{
     storageState freightState = storageState.NONE;
 
     private depositorState state = depositorState.RESTING;
+    private lockState depositorLockState = lockState.UNLOCK;
 
     public Depositor (HardwareMap hardwareMap){
         depositorServo = hardwareMap.get(Servo.class, "depositorServo");
         freightDetector = hardwareMap.get(RevColorSensorV3.class, "freightDetector");
+        lockServo = hardwareMap.get(Servo.class, "lockServo");
     }
 
     public void update(){
@@ -61,39 +73,61 @@ public class Depositor implements Subsystem{
                 depositorServo.setPosition(RESTING_POSITION);
                 break;
             case TOP_ANGLE:
+                //depositorLockState = lockState.LOCK;
                 depositorServo.setPosition(BALANCE_FOR_TOP);
+                //lockServo.setPosition(LOCK);
                 break;
             case MID_ANGLE:
                 depositorServo.setPosition(BALANCE_FOR_MID);
+                //.setPosition(LOCK);
                 break;
             case DUCK_ANGLE:
                 depositorServo.setPosition(DUCK_ANGLE);
+                //lockServo.setPosition(LOCK);
                 break;
             case CARGO_CRADLE:
                 depositorServo.setPosition(CARGO_CRADLE);
                 break;
         }
+
+        switch (depositorLockState){
+            case LOCK:
+                lockServo.setPosition(LOCK);
+                break;
+
+            case UNLOCK:
+                lockServo.setPosition(UNLOCK);
+                break;
+
+            case DUCK:
+                lockServo.setPosition(DUCK);
+                break;
+        }
+
+
     }
+
+
 
     public void freightCheck (){
             if (freightState == storageState.STORED){
-
+                //setLockState(lockState.LOCK);
             }
-            else if (getDetectionDistanceInches() <= 1.5){
+            else if (getDetectionDistanceInches() <= 2){
                 setStorageState(storageState.IN);
             }
-            else if (getDetectionDistanceInches() > 1.5){
+            else if (getDetectionDistanceInches() > 2){
                 setStorageState(storageState.NONE);
             }
 
     }
 
     public void getFreightCheck(){
-       if (getDetectionDistanceInches() <= 1.5){
+       if (getDetectionDistanceInches() <= 2){
             setStorageState(storageState.IN);
         }
 
-       if (getDetectionDistanceInches() > 1.5){
+       if (getDetectionDistanceInches() > 2){
             setStorageState(storageState.NONE);
         }
     }
@@ -112,6 +146,18 @@ public class Depositor implements Subsystem{
 
     public double getDepositorPivotPosition () { return depositorServo.getPosition(); }
 
+    public double getLockPosition (){
+        return depositorServo.getPosition();
+    }
+
+    public lockState getLockState(){
+        return depositorLockState;
+    }
+
+    public void setLockState (lockState newState){
+        depositorLockState = newState;
+    }
+
     public double getDetectionDistanceInches () {
         return freightDetector.getDistance(DistanceUnit.INCH);
     }
@@ -125,6 +171,10 @@ public class Depositor implements Subsystem{
 
     public depositorState getDepositorState(){
         return state;
+    }
+
+    public void setLockPosition (double newValue) {
+        lockServo.setPosition(newValue);
     }
 
 

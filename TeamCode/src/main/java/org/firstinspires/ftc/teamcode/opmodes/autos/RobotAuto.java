@@ -19,9 +19,11 @@ public class RobotAuto extends LinearOpMode {
     public CarouselManipulator duckScorer;
     public Vision vision;
     public Depositor depositor;
-    public RRMecanumDrive RRdrive;
+    //public RRMecanumDrive RRdrive;
 
     public Subsystem[] subsystems;
+
+    public subsystemConfig subsystemConfigType = subsystemConfig.WAREHOUSE_AUTO;
 
     private Runnable updateRunnable = new Runnable() {
         @Override
@@ -35,6 +37,11 @@ public class RobotAuto extends LinearOpMode {
         }
     };
 
+    public enum subsystemConfig{
+        WAREHOUSE_AUTO,
+        DUCK_AUTO
+    }
+
     protected Thread updateThread = new Thread(updateRunnable);
 
 
@@ -44,16 +51,37 @@ public class RobotAuto extends LinearOpMode {
     }
 
     void initialize() {
-        drive = new Drivetrain(hardwareMap);
-        RRdrive = new RRMecanumDrive(hardwareMap);
-        intake = new Intake(hardwareMap);
-        lift = new Lift(hardwareMap);
-        duckScorer = new CarouselManipulator(hardwareMap);
-        vision = new Vision(hardwareMap);
-        depositor = new Depositor(hardwareMap);
 
-        subsystems = new Subsystem[] {intake, lift, duckScorer, vision, depositor, RRdrive};
+        switch(subsystemConfigType){
+            case DUCK_AUTO:
+                drive = new Drivetrain(hardwareMap);
+                intake = new Intake(hardwareMap);
+                lift = new Lift(hardwareMap);
+                duckScorer = new CarouselManipulator(hardwareMap);
+                vision = new Vision(hardwareMap);
+                depositor = new Depositor(hardwareMap);
+
+                subsystems = new Subsystem[] {intake, lift, duckScorer, vision, depositor, drive};
+                break;
+
+            case WAREHOUSE_AUTO:
+
+                intake = new Intake(hardwareMap);
+                lift = new Lift(hardwareMap);
+                duckScorer = new CarouselManipulator(hardwareMap);
+                vision = new Vision(hardwareMap);
+                depositor = new Depositor(hardwareMap);
+
+                subsystems = new Subsystem[] {intake, lift, duckScorer, vision, depositor};
+                break;
+
+        }
+
     }
+
+
+
+
 
 
 

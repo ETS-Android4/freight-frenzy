@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.subsystems.CarouselManipulator;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
 
 @Config
 @Autonomous
+@Disabled
 public class BlueCarouselAuto extends RobotAuto {
 
     BlueCarouselTeamElementPipeline.Location elementLocation = BlueCarouselTeamElementPipeline.Location.RIGHT;

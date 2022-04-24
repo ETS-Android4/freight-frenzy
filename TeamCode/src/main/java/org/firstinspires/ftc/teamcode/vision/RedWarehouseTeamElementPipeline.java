@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Point;
 
-public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
+public class RedWarehouseTeamElementPipeline extends OpenCvPipeline {
 
     Mat mat = new Mat();
     public enum Location {
@@ -20,12 +20,12 @@ public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
     private Location location;
 
     static final Rect LEFT_ROI = new Rect(
-            new Point(50, 120), //Formally 35
-            new Point(90, 160)); //Formally 75
+            new Point(85, 120), //Formally 35
+            new Point(125, 160)); //Formally 75
 
     static final Rect RIGHT_ROI = new Rect(
-            new Point(205, 120), //Formally 35
-            new Point(243, 160)); //Formally 75
+            new Point(235, 120), //Formally 35
+            new Point(273, 160)); //Formally 75
     static double PERCENT_COLOR_THRESHOLD = 0.3;
 
 
@@ -46,11 +46,11 @@ public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
         left.release();
         right.release();
 
-        boolean elementMID = leftValue > PERCENT_COLOR_THRESHOLD;
-        boolean elementRight = rightValue > PERCENT_COLOR_THRESHOLD;
+        boolean elementMID = rightValue > PERCENT_COLOR_THRESHOLD;
+        boolean elementLeft = leftValue > PERCENT_COLOR_THRESHOLD;
 
-        if (elementRight) {
-            location = Location.RIGHT;
+        if (elementLeft) {
+            location = Location.LEFT;
             //telemetry.addData("Element Location: ", "LEFT");
         }
 
@@ -60,7 +60,7 @@ public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
         }
 
         else {
-            location = Location.LEFT;
+            location = Location.RIGHT;
             //telemetry.addData("Element Location: ", "RIGHT");
         }
         //telemetry.update();
@@ -80,7 +80,7 @@ public class BlueWarehouseTeamElementPipeline extends OpenCvPipeline {
         return mat;
     }
 
-    public Location getLocation(){
+    public RedWarehouseTeamElementPipeline.Location getLocation(){
         return location;
     }
 

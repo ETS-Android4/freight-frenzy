@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.opmodes.autos;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 @Config
 @Autonomous
+@Disabled
 public class IHateThis extends RobotAuto {
 
     @Override

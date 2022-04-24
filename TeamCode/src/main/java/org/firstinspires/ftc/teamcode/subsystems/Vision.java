@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.vision.BlueWarehouseTeamElementPipeline;
 import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
 import org.firstinspires.ftc.teamcode.vision.BlueCarouselTeamElementPipeline;
+import org.firstinspires.ftc.teamcode.vision.RedWarehouseTeamElementPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -15,11 +16,13 @@ public class Vision implements Subsystem{
     private RedCarouselTeamElementPipeline elementPipelineRedCarousel = new RedCarouselTeamElementPipeline();
     private BlueCarouselTeamElementPipeline elementPipelineBlueCarousel = new BlueCarouselTeamElementPipeline();
     private BlueWarehouseTeamElementPipeline elementPipelineBlueWarehouse = new BlueWarehouseTeamElementPipeline();
+    private RedWarehouseTeamElementPipeline elementPipelineRedWarehouse = new RedWarehouseTeamElementPipeline();
 
     public enum robotLocation {
         BLUE_CAROUSEL,
         RED_CAROUSEL,
-        BLUE_WAREHOUSE
+        BLUE_WAREHOUSE,
+        RED_WAREHOUSE
     }
 
     public robotLocation startLocation = robotLocation.BLUE_CAROUSEL;
@@ -47,6 +50,9 @@ public class Vision implements Subsystem{
                     case BLUE_WAREHOUSE:
                         camera.setPipeline(elementPipelineBlueWarehouse);
                         break;
+                    case RED_WAREHOUSE:
+                        camera.setPipeline(elementPipelineRedWarehouse);
+                        break;
                 }
             }
             public void onError(int thing){
@@ -62,6 +68,8 @@ public class Vision implements Subsystem{
     public BlueCarouselTeamElementPipeline getElementPipelineBlueCarousel() { return elementPipelineBlueCarousel;}
 
     public BlueWarehouseTeamElementPipeline getElementPipelineBlueWarehouse() { return elementPipelineBlueWarehouse;}
+
+    public RedWarehouseTeamElementPipeline getElementPipelineRedWarehouse() { return elementPipelineRedWarehouse;}
 
 
 

@@ -12,58 +12,62 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.RRMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.vision.BlueWarehouseTeamElementPipeline;
+import org.firstinspires.ftc.teamcode.vision.RedWarehouseTeamElementPipeline;
 
 @Autonomous
-public class BlueWarehouseAuto extends RobotAuto {
+public class RedWarehouseAuto extends RobotAuto{
 
-    BlueWarehouseTeamElementPipeline.Location elementLocation = BlueWarehouseTeamElementPipeline.Location.RIGHT;
+    RedWarehouseTeamElementPipeline.Location elementLocation = RedWarehouseTeamElementPipeline.Location.RIGHT;
 
-    private static int DIST_FROM_WALL = 15;
-    private static int COLLECT_DEPTH = 22; //Formally: 22
-    private static int SCORE_ANGLE = 317;
-    private static int Y_OFFSET = 7;
-    private static int X_OFFSET = 6;
+
+    private static int DIST_FROM_WALL = 11;
+    private static int COLLECT_DEPTH = 98; //Formally: 22
+    private static int SCORE_ANGLE = 40;
+    private static int Y_OFFSET = 14;
+    private static int X_OFFSET = 3;
     public double autoStartTime;
     public int cycleCount = 0;
 
     public static final Pose2d startPose = new Pose2d(6, 63);
-    public static final Pose2d FIRST_SCORE_POSE = new Pose2d(3, 56, Math.toRadians(327));
-    public static final Pose2d SCORE_POSE = new Pose2d(9, 56, Math.toRadians(SCORE_ANGLE));
-    public static final Pose2d GAP_OUTER_POSE = new Pose2d(DIST_FROM_WALL, 56, Math.toRadians(270));
-    public static final Pose2d GAP_INNER_POSE = new Pose2d(DIST_FROM_WALL, 31, Math.toRadians(270));
-    public static final Pose2d COLLECT_POSE = new Pose2d(DIST_FROM_WALL, COLLECT_DEPTH, Math.toRadians(270));
+    //public static final Pose2d SCORE_POSE = new Pose2d(-6, 60, Math.toRadians(323));
+    public static final Pose2d FIRST_SCORE_POSE = new Pose2d(3, 70, Math.toRadians(33));
 
+    public static final Pose2d SCORE_POSE = new Pose2d(3, 70, Math.toRadians(SCORE_ANGLE));
+    public static final Pose2d GAP_OUTER_POSE = new Pose2d(DIST_FROM_WALL, 70, Math.toRadians(89));
+    public static final Pose2d COLLECT_POSE = new Pose2d(DIST_FROM_WALL, COLLECT_DEPTH, Math.toRadians(89));
+    public static final Pose2d GAP_INNER_POSE = new Pose2d(DIST_FROM_WALL, 95, Math.toRadians(89));
 
-    public static final Pose2d SECOND_COLLECT_POSE = new Pose2d(DIST_FROM_WALL + X_OFFSET, COLLECT_DEPTH - Y_OFFSET + 1, Math.toRadians(255));
-    public static final Pose2d SECOND_GAP_OUTER_POSE = new Pose2d(DIST_FROM_WALL + X_OFFSET, 56 - Y_OFFSET, Math.toRadians(270));
-    public static final Pose2d SECOND_SCORE_POSE = new Pose2d(6 + X_OFFSET, 56 - Y_OFFSET, Math.toRadians(SCORE_ANGLE));
+    public static final Pose2d SECOND_COLLECT_POSE = new Pose2d(DIST_FROM_WALL + X_OFFSET, COLLECT_DEPTH + Y_OFFSET - 13, Math.toRadians(105));
+    public static final Pose2d SECOND_GAP_OUTER_POSE = new Pose2d(DIST_FROM_WALL + X_OFFSET, 56 + Y_OFFSET, Math.toRadians(87));
+    public static final Pose2d SECOND_SCORE_POSE = new Pose2d(6 + X_OFFSET, 56 + Y_OFFSET, Math.toRadians(SCORE_ANGLE));
 
-    public static final Pose2d THIRD_COLLECT_POSE = new Pose2d(26, 12, Math.toRadians(250));
-    public static final Pose2d THIRD_GAP_OUTER_POSE = new Pose2d(26, 47, Math.toRadians(270));
-    public static final Pose2d THIRD_SCORE_POSE = new Pose2d(18, 48, Math.toRadians(317));
+    public static final Pose2d THIRD_COLLECT_POSE = new Pose2d(27, 105, Math.toRadians(110));
+    public static final Pose2d THIRD_GAP_OUTER_POSE = new Pose2d(27, 70, Math.toRadians(87));
+    public static final Pose2d THIRD_SCORE_POSE = new Pose2d(25, 69, Math.toRadians(43));
 
-    public static final Pose2d GAP_POSE = new Pose2d(21, 40, Math.toRadians(270));
-    public static final Pose2d FAST_PARK = new Pose2d(33, 14, Math.toRadians(270));
-    public static final Pose2d PARK_POSE = new Pose2d(-12, 28, Math.toRadians(270));
+    public static final Pose2d GAP_POSE = new Pose2d(21, 40, Math.toRadians(89));
+    public static final Pose2d FAST_PARK = new Pose2d(32, 105, Math.toRadians(89));
+    public static final Pose2d PARK_POSE = new Pose2d(-12, 28, Math.toRadians(89));
 
     public Pose2d lastPose = startPose;
     public double lastHeading = 0;
 
     private static int TURN_TO_WALL = -59;
 
-    private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1175; //2530
-    private static int EXTEND_TO_MID = 1275; //2400
-    private static int EXTEND_TO_BOTTOM = 1250; //2325
+    //private static int EXTEND_TO_ANGLE = 350;
+    //private static int EXTEND_TO_TOP = 500; //2530
+    //private static int EXTEND_TO_MID = 1275; //2400
+    //private static int EXTEND_TO_BOTTOM = 1250; //2325
     private static int TIME_TO_DEPOSIT = 600;
 
     Trajectory toFirstScore;
     Trajectory toWarehouse;
     Trajectory toCollect;
-    Trajectory toScore;
+
     Trajectory toSafePark;
     Trajectory toFirstWarehouse;
+
+    Trajectory toScore;
     Trajectory toGapExit;
     Trajectory toGapEntrance;
     Trajectory toOuterField;
@@ -78,10 +82,11 @@ public class BlueWarehouseAuto extends RobotAuto {
     Trajectory toThirdScore;
     Trajectory toThirdCollect;
 
+
     Trajectory goForward;
     Trajectory toFastPark;
 
-    private enum CyclingState{
+    private enum CyclingStateTest{
         COLLECTING,
         TRAVELLING,
         DELIVERING,
@@ -89,21 +94,19 @@ public class BlueWarehouseAuto extends RobotAuto {
         PARKING
     }
 
-    CyclingState cycleState = CyclingState.NULL;
+    CyclingStateTest cycleState = CyclingStateTest.NULL;
 
     @Override
     public void runOpMode() throws InterruptedException {
         subsystemConfigType = subsystemConfig.WAREHOUSE_AUTO;
-
         initialize();
-        vision.setRobotLocation(Vision.robotLocation.BLUE_WAREHOUSE);
+        vision.setRobotLocation(Vision.robotLocation.RED_WAREHOUSE);
         vision.enable();
-
 
         RRMecanumDrive RRdrive = new RRMecanumDrive(hardwareMap);
 
         while (!opModeIsActive() && !isStopRequested()){
-            telemetry.addData("Element Location: ", vision.getElementPipelineBlueWarehouse().getLocation());
+            telemetry.addData("Element Location: ", vision.getElementPipelineRedWarehouse().getLocation());
             telemetry.update();
         }
 
@@ -119,7 +122,7 @@ public class BlueWarehouseAuto extends RobotAuto {
 
         updateThread.start();
 
-        elementLocation = vision.getElementPipelineBlueWarehouse().getLocation();
+        elementLocation = vision.getElementPipelineRedWarehouse().getLocation();
 
         toFirstScore = RRdrive.trajectoryBuilder(startPose)
                 .lineToLinearHeading(FIRST_SCORE_POSE)
@@ -173,12 +176,12 @@ public class BlueWarehouseAuto extends RobotAuto {
                 .addTemporalMarker(0.3, () -> {
                     intake.setIntakeState(Intake.IntakeState.OUT);
                 })
-                .addSpatialMarker(new Vector2d(12, 31), () -> {
+                .addSpatialMarker(new Vector2d(11, 85), () -> {
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.AUTO_TOP);
                     //depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
                 })
-                .addSpatialMarker(new Vector2d(12, 40), () -> {
+                .addSpatialMarker(new Vector2d(11, 75), () -> {
                     intake.setIntakeState(Intake.IntakeState.OFF);
                 })
                 .build();
@@ -188,12 +191,12 @@ public class BlueWarehouseAuto extends RobotAuto {
                 .addTemporalMarker(0.3, () -> {
                     intake.setIntakeState(Intake.IntakeState.OUT);
                 })
-                .addSpatialMarker(new Vector2d(12, 31), () -> {
+                .addSpatialMarker(new Vector2d(11, 85), () -> {
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.AUTO_TOP);
                     //depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
                 })
-                .addSpatialMarker(new Vector2d(12, 40), () -> {
+                .addSpatialMarker(new Vector2d(11, 75), () -> {
                     intake.setIntakeState(Intake.IntakeState.OFF);
                 })
                 .build();
@@ -203,12 +206,12 @@ public class BlueWarehouseAuto extends RobotAuto {
                 .addTemporalMarker(0.3, () -> {
                     intake.setIntakeState(Intake.IntakeState.OUT);
                 })
-                .addSpatialMarker(new Vector2d(12, 31), () -> {
+                .addSpatialMarker(new Vector2d(11, 85), () -> {
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.AUTO_TOP);
                     //depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
                 })
-                .addSpatialMarker(new Vector2d(12, 40), () -> {
+                .addSpatialMarker(new Vector2d(11, 75), () -> {
                     intake.setIntakeState(Intake.IntakeState.OFF);
                 })
                 .build();
@@ -235,16 +238,15 @@ public class BlueWarehouseAuto extends RobotAuto {
                 })
                 .build();
 
-        toFastPark = RRdrive.trajectoryBuilder(new Pose2d(33, 56 - Y_OFFSET, Math.toRadians(270)))
+        toFastPark = RRdrive.trajectoryBuilder(new Pose2d(30, 58, Math.toRadians(90)))
                 .lineToLinearHeading(FAST_PARK)
                 .build();
 
 
-        //Drive backwards slightly and turn towards shipping hub
+        //START OF AUTO
 
         RRdrive.followTrajectory(toFirstScore);
         sleep(250);
-
 
         depositor.setDepositorState(Depositor.depositorState.SCORING);
         sleep(TIME_TO_DEPOSIT);
@@ -255,10 +257,10 @@ public class BlueWarehouseAuto extends RobotAuto {
 
         RRdrive.followTrajectory(toGapEntrance);
 
-        cycleState = CyclingState.COLLECTING;
+        cycleState = CyclingStateTest.COLLECTING;
 
 
-        while(!isStopRequested() && opModeIsActive() && cycleState != CyclingState.NULL) {
+        while(!isStopRequested() && opModeIsActive() && cycleState != CyclingStateTest.NULL) {
 
             switch (cycleState) {
                 case COLLECTING:
@@ -283,13 +285,13 @@ public class BlueWarehouseAuto extends RobotAuto {
                     else if (cycleCount == 1){
                         RRdrive.followTrajectory(toSecondCollect);
                     }
-                    else{
+                    else {
                         RRdrive.followTrajectory(toThirdCollect);
                     }
 
                     depositor.setLockState(Depositor.lockState.LOCK);
 
-                    cycleState = CyclingState.DELIVERING;
+                    cycleState = CyclingStateTest.DELIVERING;
                     break;
 
                 case DELIVERING:
@@ -298,7 +300,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                         RRdrive.followTrajectory(toOuterField);
                         RRdrive.followTrajectory(toScore);
                     }
-                    else if (cycleCount == 1) {
+                    else if (cycleCount == 1){
                         intake.setIntakeState(Intake.IntakeState.OUT);
                         RRdrive.followTrajectory(toSecondOuterField);
                         RRdrive.followTrajectory(toSecondScore);
@@ -307,7 +309,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                         intake.setIntakeState(Intake.IntakeState.OUT);
                         RRdrive.followTrajectory(toThirdOuterField);
                         RRdrive.followTrajectory(toThirdScore);
-                        //sleep(350);
+                        sleep(350);
                     }
 
                     depositor.setDepositorState(Depositor.depositorState.SCORING);
@@ -316,7 +318,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                     homeLift();
 
                     if ((getRuntime() - autoStartTime) >= 23.0){
-                        cycleState = CyclingState.PARKING;
+                        cycleState = CyclingStateTest.PARKING;
                     }
                     else {
 
@@ -331,8 +333,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                         else {
                             RRdrive.followTrajectory(toThirdGapEntrance);
                         }
-
-                        cycleState = CyclingState.COLLECTING;
+                        cycleState = CyclingStateTest.COLLECTING;
 
                     }
 
@@ -362,7 +363,7 @@ public class BlueWarehouseAuto extends RobotAuto {
                     //RRdrive.followTrajectory(toWarehouse);
                     //RRdrive.followTrajectory(toSafePark);
                     RRdrive.followTrajectory(toFastPark);
-                    cycleState = CyclingState.NULL;
+                    cycleState = CyclingStateTest.NULL;
                     break;
 
                 case NULL:
@@ -542,7 +543,7 @@ public class BlueWarehouseAuto extends RobotAuto {
     }
 
     public void extendToReady(){
-        depositor.setLockState(Depositor.lockState.LOCK);
+        depositor.setLockPosition(depositor.LOCK);
         lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
 
         //Angle slides towards the top level of the shipping hub
@@ -570,44 +571,8 @@ public class BlueWarehouseAuto extends RobotAuto {
         lift.setExtensionState(Lift.ExtensionState.IDLE);
     }
 
-    public void extendToScore (Lift.AngleState angleState){
-        //Extend to "ready to angle position"
-        //extendToPosition(EXTEND_TO_ANGLE);
-        depositor.setLockState(Depositor.lockState.LOCK);
-        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
 
-        //sleep(1000);
-
-        //Angle slides towards the top level of the shipping hub
-        lift.setAnglerState(angleState);
-        depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
-
-        //sleep(250); //Previously 1000
-
-        //Extend slides to the correct level of the shipping hub
-        switch (angleState){
-            case TOP:
-                extendToPosition(EXTEND_TO_TOP);
-                break;
-            case MID:
-                extendToPosition(EXTEND_TO_MID);
-                break;
-            case BOTTOM:
-                extendToPosition(EXTEND_TO_BOTTOM);
-                break;
-        }
-
-        //sleep(1000);
-
-        //Set the depositor to a scoring position
-        depositor.setDepositorState(Depositor.depositorState.SCORING);
-
-        //Wait x seconds
-        sleep(TIME_TO_DEPOSIT);
-
-    }
-
-    public void setCyclingState (CyclingState newState) {
+    public void setCyclingState (CyclingStateTest newState) {
         cycleState = newState;
     }
 

@@ -27,8 +27,17 @@ public class RedTeleOp extends RobotOpMode{
         AUTO
     }
 
+    public enum CheckState {
+        THINGONE,
+        THINGTWO,
+        THINGTHREE
+    }
+    public CheckState checker = CheckState.THINGTHREE;
+
     private int CARGO_THRESHOLD = 160;
     //private int BOX_THRESHOLD = 10;
+    private boolean readyToCheck;
+    private double actionStartTime;
 
     private AngleModeRed anglerSwitch = AngleModeRed.AUTO;
 
@@ -36,11 +45,23 @@ public class RedTeleOp extends RobotOpMode{
     public void loop() {
         super.loop();
 
-        drive.cartesianDrive(gamepad1.left_stick_x, gamepad1.right_stick_x, gamepad1.left_stick_y);
+        drive.cartesianDrive(gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x *.75);
 
-
-        if (lift.getExtensionState() == Lift.ExtensionState.IDLE){
-            depositor.freightCheck();
+        switch (checker){
+            case THINGONE:
+                if ((getRuntime() - actionStartTime) > 0.5){
+                    setCheckState(CheckState.THINGTWO);
+                }
+                break;
+            case THINGTWO:
+                depositor.freightCheck();
+                break;
+            case THINGTHREE:
+                if (lift.getAnglerState() == Lift.AngleState.IDLE && lift.getExtensionState() == Lift.ExtensionState.IDLE && !lift.getRetractionLimitValue()){
+                    actionStartTime = getRuntime();
+                    setCheckState(CheckState.THINGONE);
+                }
+                break;
         }
 
         if (depositor.getStorageState() == Depositor.storageState.IN){
@@ -48,7 +69,9 @@ public class RedTeleOp extends RobotOpMode{
             gamepad1.rumble(500);
             //gamepad1.rumble(1.0, 1.0, 1000);
             gamepad2.rumble(500);
+            depositor.setLockState(Depositor.lockState.LOCK);
             depositor.setStorageState(Depositor.storageState.STORED);
+
         }
 
         if (epicGamer1.RIGHT_BUMPER.pressed()){
@@ -71,6 +94,7 @@ public class RedTeleOp extends RobotOpMode{
 
         if (epicGamer1.X.pressed()){
             depositor.setDepositorState(Depositor.depositorState.SCORING);
+            depositor.setLockState(Depositor.lockState.UNLOCK);
         }
 
         if(epicGamer2.X.pressed()) {
@@ -79,6 +103,7 @@ public class RedTeleOp extends RobotOpMode{
             }
             else {
                 depositor.setDepositorState(Depositor.depositorState.SCORING);
+                depositor.setLockState(Depositor.lockState.UNLOCK);
             }
 
         }
@@ -94,18 +119,19 @@ public class RedTeleOp extends RobotOpMode{
             lift.setExtensionState(Lift.ExtensionState.IN);
             depositor.setDepositorState(Depositor.depositorState.RESTING);
         }
-        else if (lift.getExtensionState() != Lift.ExtensionState.EXTEND_TO_ANGLE && lift.getExtensionState() != Lift.ExtensionState.HOMING) {
+        else if (lift.getExtensionState() != Lift.ExtensionState.EXTEND_TO_ANGLE && lift.getExtensionState() != Lift.ExtensionState.EXTEND_TO_ANGLE_TOP && lift.getExtensionState() != Lift.ExtensionState.HOMING) {
             lift.setExtensionState(Lift.ExtensionState.IDLE);
         }
 
 
         if (epicGamer1.DPAD_LEFT.state){
+            intake.setIntakeState(Intake.IntakeState.UP);
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
             //intake.setIntakeState(Intake.IntakeState.IN);
         }
         if (epicGamer1.DPAD_RIGHT.state){
+            intake.setIntakeState(Intake.IntakeState.UP);
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.SCORING);
-            //intake.setIntakeState(Intake.IntakeState.UP);
         }
         if (epicGamer1.DPAD_DOWN.state){
             duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.STOWED);
@@ -124,10 +150,31 @@ public class RedTeleOp extends RobotOpMode{
             depositor.setDepositorState(Depositor.depositorState.RESTING);
             lift.setExtensionState(Lift.ExtensionState.HOMING);
             depositor.setStorageState(Depositor.storageState.NONE);
+            depositor.setLockState(Depositor.lockState.UNLOCK);
+            setCheckState(CheckState.THINGTHREE);
         }
 
         if (epicGamer2.RIGHT_BUMPER.pressed()){
             lift.setAnglerState(Lift.AngleState.ADJUST_DOWN);
+        }
+
+        if(epicGamer2.LEFT_JOYSTICK_PUSH.pressed()){
+            lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+            //lift.setAnglerState(Lift.AngleState.CAP_COLLECT);
+        }
+
+        if(epicGamer2.RIGHT_JOYSTICK_PUSH.pressed()){
+            lift.setAnglerState(Lift.AngleState.CAP_SCORE);
+        }
+
+        if(epicGamer1.RIGHT_JOYSTICK_PUSH.pressed()){
+            if (depositor.getLockState() == Depositor.lockState.LOCK){
+                depositor.setStorageState(Depositor.storageState.NONE);
+                depositor.setLockState(Depositor.lockState.UNLOCK);
+            }
+            else {
+                depositor.setLockState(Depositor.lockState.LOCK);
+            }
         }
 
         switch (anglerSwitch){
@@ -143,8 +190,9 @@ public class RedTeleOp extends RobotOpMode{
                 }
                 if (epicGamer2.Y.pressed()) {
                     if (depositor.getFreightBlue() > CARGO_THRESHOLD){
-                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
-                        lift.setAnglerState(Lift.AngleState.TOP);
+                        depositor.setLockState(Depositor.lockState.LOCK);
+                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE_TOP);
+                        lift.setAnglerState(Lift.AngleState.TOP_MAG);
                         depositor.setDepositorState(Depositor.depositorState.CARGO_CRADLE);
                     }
                     /*else if (CARGO_THRESHOLD < depositor.getFreightRed() && depositor.getFreightRed() < BOX_THRESHOLD){
@@ -154,12 +202,22 @@ public class RedTeleOp extends RobotOpMode{
                     }
                      */
                     else {
-                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
-                        lift.setAnglerState(Lift.AngleState.TOP);
+                        depositor.setLockState(Depositor.lockState.LOCK);
+                        lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE_TOP);
+                        lift.setAnglerState(Lift.AngleState.TOP_MAG);
                         depositor.setDepositorState(Depositor.depositorState.TOP_ANGLE);
                     }
                 }
+
                 if (epicGamer2.DPAD_LEFT.pressed()){
+                    depositor.setLockState(Depositor.lockState.LOCK);
+                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                    lift.setAnglerState(Lift.AngleState.DUCK);
+                    depositor.setDepositorState(Depositor.depositorState.DUCK_ANGLE);
+                }
+
+                if(epicGamer2.RIGHT_BUMPER.pressed()){
+                    depositor.setLockState(Depositor.lockState.DUCK);
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.DUCK);
                     depositor.setDepositorState(Depositor.depositorState.DUCK_ANGLE);
@@ -185,7 +243,20 @@ public class RedTeleOp extends RobotOpMode{
         telemetry.addData("Angle State: ", lift.getAnglerState());
         telemetry.addData("Angler Power: ", lift.getAnglerPower());
         telemetry.addData("Depositor Pivot Position: ", depositor.getDepositorPivotPosition());
-        telemetry.addData("Retraction Limit: ", !lift.getRetractionLimitValue());
+        telemetry.addData("Retraction Limit: ", lift.getRetractionLimitValue());
+        telemetry.addData("Detection Distance Inches: ", depositor.getDetectionDistanceInches());
+        telemetry.addData("getRunTime(): ", getRuntime());
+        telemetry.addData("Storage State: ", depositor.getStorageState());
+        telemetry.addData("Check State: ", checker);
+        telemetry.addData("Check Buffer: ", getRuntime() - actionStartTime);
 
+
+    }
+
+    public void setCheckState (CheckState state){
+        checker = state;
+    }
+    public CheckState getCheckState(){
+        return checker;
     }
 }

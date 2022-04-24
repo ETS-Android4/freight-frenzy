@@ -36,6 +36,8 @@ public class RedFireWiresAuto extends RobotAuto {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        subsystemConfigType = subsystemConfig.DUCK_AUTO;
+
         initialize();
         vision.setRobotLocation(Vision.robotLocation.RED_CAROUSEL);
         vision.enable();

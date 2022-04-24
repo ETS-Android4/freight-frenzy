@@ -38,7 +38,7 @@ public class BlueTeleOp extends RobotOpMode {
         //drive.cartesianDrive(gamepad1.left_stick_x, gamepad1.left_stick_y , gamepad1.right_stick_x);
 
 
-        if (lift.getExtensionState() == Lift.ExtensionState.IDLE){
+        if (lift.getExtensionState() == Lift.ExtensionState.IDLE && intake.getIntakeState() == Intake.IntakeState.IN){
             depositor.freightCheck();
         }
 
@@ -53,6 +53,7 @@ public class BlueTeleOp extends RobotOpMode {
         if (epicGamer1.RIGHT_BUMPER.pressed()){
             if (intake.getIntakeState() != Intake.IntakeState.IN){
                 intake.setIntakeState(Intake.IntakeState.IN);
+                depositor.setLockState(Depositor.lockState.UNLOCK);
             }
             else {
                 intake.setIntakeState(Intake.IntakeState.OFF);
@@ -125,6 +126,7 @@ public class BlueTeleOp extends RobotOpMode {
             depositor.setDepositorState(Depositor.depositorState.RESTING);
             lift.setExtensionState(Lift.ExtensionState.HOMING);
             depositor.setStorageState(Depositor.storageState.NONE);
+            depositor.setLockPosition(depositor.UNLOCK);
         }
 
         if (epicGamer2.RIGHT_BUMPER.pressed()){
@@ -133,11 +135,25 @@ public class BlueTeleOp extends RobotOpMode {
 
         if(epicGamer2.LEFT_JOYSTICK_PUSH.pressed()){
             lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
-            lift.setAnglerState(Lift.AngleState.CAP_COLLECT);
+            //lift.setAnglerState(Lift.AngleState.CAP_COLLECT);
         }
 
         if(epicGamer2.RIGHT_JOYSTICK_PUSH.pressed()){
             lift.setAnglerState(Lift.AngleState.CAP_SCORE);
+        }
+
+        if(epicGamer1.RIGHT_JOYSTICK_PUSH.pressed()){
+            depositor.setLockPosition(depositor.UNLOCK);
+        }
+
+        if(epicGamer1.RIGHT_JOYSTICK_PUSH.pressed()){
+            if (depositor.getLockState() == Depositor.lockState.LOCK){
+                depositor.setStorageState(Depositor.storageState.NONE);
+                depositor.setLockState(Depositor.lockState.UNLOCK);
+            }
+            else {
+                depositor.setLockState(Depositor.lockState.LOCK);
+            }
         }
 
         switch (anglerSwitch){
@@ -154,6 +170,7 @@ public class BlueTeleOp extends RobotOpMode {
                 if (epicGamer2.Y.pressed()) {
 
                     if (depositor.getFreightBlue() > CARGO_THRESHOLD){
+                        depositor.setLockState(Depositor.lockState.LOCK);
                         lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                         lift.setAnglerState(Lift.AngleState.TOP);
                         depositor.setDepositorState(Depositor.depositorState.CARGO_CRADLE);
@@ -172,6 +189,14 @@ public class BlueTeleOp extends RobotOpMode {
 
                 }
                 if (epicGamer2.DPAD_LEFT.pressed()){
+                    depositor.setLockState(Depositor.lockState.LOCK);
+                    lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
+                    lift.setAnglerState(Lift.AngleState.DUCK);
+                    depositor.setDepositorState(Depositor.depositorState.DUCK_ANGLE);
+                }
+
+                if(epicGamer2.RIGHT_BUMPER.pressed()){
+                    depositor.setLockState(Depositor.lockState.DUCK);
                     lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
                     lift.setAnglerState(Lift.AngleState.DUCK);
                     depositor.setDepositorState(Depositor.depositorState.DUCK_ANGLE);
@@ -198,12 +223,15 @@ public class BlueTeleOp extends RobotOpMode {
         telemetry.addData("Angler Power: ", lift.getAnglerPower());
         telemetry.addData("Depositor Pivot Position: ", depositor.getDepositorPivotPosition());
         telemetry.addData("Retraction Limit: ", !lift.getRetractionLimitValue());
-        //telemetry.addData("Detection Distance Inches: ", depositor.getDetectionDistanceInches());
+        telemetry.addData("Detection Distance Inches: ", depositor.getDetectionDistanceInches());
         //telemetry.addData("Detection Distance Centimeters: ", depositor.getDetectionDistanceCentimeter());
         telemetry.addData("Extension Through Bore Encoder:", lift.getLiftRightPosition());
         telemetry.addData("Angle Adjuster Through Bore Encoder:", intake.getIntakePosition());
         telemetry.addData("Extension State: ", lift.getExtensionState());
         telemetry.addData("Color Reading: ", depositor.getFreightBlue());
+        telemetry.addData("Storage State: ", depositor.getStorageState());
+        telemetry.addData("Angle Adjust Through-Bore: ", intake.getIntakePosition());
+        //telemetry.addData("Runtime: ", getRuntime());
 
 
     }

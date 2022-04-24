@@ -33,6 +33,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.motion.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.motion.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
+import org.firstinspires.ftc.teamcode.util.BNO055IMUUtil;
+import org.firstinspires.ftc.teamcode.util.AxisDirection;
 
 
 
@@ -58,7 +60,7 @@ import static org.firstinspires.ftc.teamcode.motion.DriveConstants.kV;
 @Config
 public class RRMecanumDrive extends MecanumDrive implements Subsystem {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3, 0, 0); //P:
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(7.5, 0, 0.175); //P:
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(3, 0, 0.1); //P:7.5  D: 0.175
 
     public static double LATERAL_MULTIPLIER = (42.51/34.5);
 
@@ -119,7 +121,7 @@ public class RRMecanumDrive extends MecanumDrive implements Subsystem {
         // and the placement of the dot/orientation from https://docs.revrobotics.com/rev-control-system/control-system-overview/dimensions#imu-location
         //
         // For example, if +Y in this diagram faces downwards, you would use AxisDirection.NEG_Y.
-        // BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
+        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
@@ -145,7 +147,7 @@ public class RRMecanumDrive extends MecanumDrive implements Subsystem {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        //rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
 

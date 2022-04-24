@@ -16,23 +16,25 @@ import org.firstinspires.ftc.teamcode.vision.RedCarouselTeamElementPipeline;
 public class NewRedCarouselAuto extends RobotAuto {
 
     RedCarouselTeamElementPipeline.Location elementLocation = RedCarouselTeamElementPipeline.Location.RIGHT;
-    private static int TIME_TO_DUCK_SCORE = 3500;
+    private static int TIME_TO_DUCK_SCORE = 5000;
     private static int TIME_TO_DEPOSIT = 1500;
     private static int EXTEND_TO_ANGLE = 350;
-    private static int EXTEND_TO_TOP = 1600; //2530
-    private static int EXTEND_TO_MID = 1550; //2400
-    private static int EXTEND_TO_BOTTOM = 1510; //2325
+    private static int EXTEND_TO_TOP = 1625; //2530
+    private static int EXTEND_TO_MID = 1575; //1550
+    private static int EXTEND_TO_BOTTOM = 1510; //1510
     private static int STRAFE_TO_STORAGE = 400; //Formally 1200
-    private static int TURN_TO_DUCK_SCORE = 145; //235
-    private static int TURN_IN_STORAGE = 230; //Formally 140
+    private static int TURN_TO_DUCK_SCORE = 85; //235
+    private static int TURN_IN_STORAGE = 220; //Formally 140
     private static int TURN_TO_COLLECT_DUCK = 250;
-    private static int STRAFE_IN_STORAGE = 450;
+    private static int STRAFE_IN_STORAGE = 425;
     private static int STRAFE_TO_DUCK_COLLECT = 750;
 
 //gamer - Randall Delafuente
 
     @Override
     public void runOpMode() throws InterruptedException {
+        subsystemConfigType = subsystemConfig.DUCK_AUTO;
+
         initialize();
         vision.setRobotLocation(Vision.robotLocation.RED_CAROUSEL);
         vision.enable();
@@ -86,8 +88,12 @@ public class NewRedCarouselAuto extends RobotAuto {
 
         sleep(1000);
 
+        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.REST);
+
+        sleep(1000);
+
         //Set carousel manipulator to the scoring state
-        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.SCORING);
+        duckScorer.setManipulatorState(CarouselManipulator.CarouselManipulatorState.AUTO_SCORING);
         sleep(TIME_TO_DUCK_SCORE);
 
         //Set the position of the front intake bars to be down
@@ -98,11 +104,11 @@ public class NewRedCarouselAuto extends RobotAuto {
         //Wait x seconds
         sleep(2000);
 
-        encoderDrive(0.0, -0.5, 0.0, TURN_TO_COLLECT_DUCK);
+        encoderDrive(0.0, 0.0, 0.5, TURN_TO_COLLECT_DUCK);
 
         sleep(500);
 
-        encoderDrive(0.0, 0.5, 0.0, TURN_TO_COLLECT_DUCK);
+        encoderDrive(0.0, 0.0, -0.5, TURN_TO_COLLECT_DUCK);
 
         sleep(500);
 
@@ -115,7 +121,7 @@ public class NewRedCarouselAuto extends RobotAuto {
         sleep(750);
 
         //Move to storage unit LOL
-        encoderDrive(0.0, 0.5, 0, TURN_TO_DUCK_SCORE);
+        encoderDrive(0.0, 0, -0.5, TURN_TO_DUCK_SCORE);
 
         extendToScore(Lift.AngleState.CAROUSEL_TOP);
 
@@ -125,7 +131,7 @@ public class NewRedCarouselAuto extends RobotAuto {
 
         sleep(500);
 
-        encoderDrive(0.0, 0.5, 0, TURN_IN_STORAGE);
+        encoderDrive(0.0, 0.0, -0.5, TURN_IN_STORAGE);
 
         sleep(250);
 
@@ -133,6 +139,7 @@ public class NewRedCarouselAuto extends RobotAuto {
     }
 
     public void homeLift(){
+        depositor.setLockState(Depositor.lockState.UNLOCK);
         depositor.setDepositorState(Depositor.depositorState.RESTING);
         lift.setExtensionState(Lift.ExtensionState.HOMING);
         lift.setAnglerState(Lift.AngleState.BOTTOM);
@@ -157,6 +164,10 @@ public class NewRedCarouselAuto extends RobotAuto {
     public void extendToScore (Lift.AngleState angleState){
         //Extend to "ready to angle position"
         //extendToPosition(EXTEND_TO_ANGLE);
+        depositor.setLockState(Depositor.lockState.LOCK);
+
+        sleep(250);
+
         lift.setExtensionState(Lift.ExtensionState.EXTEND_TO_ANGLE);
 
         //sleep(1000);
@@ -198,10 +209,10 @@ public class NewRedCarouselAuto extends RobotAuto {
 
 
         while (opModeIsActive()) {
-            if (Math.abs(lift.getLiftPosition()) > counts) {
+            if (Math.abs(lift.getLiftPosition()/37) > counts) {
                 break;
             }
-            else if (getRuntime() - startTime > 4.0){
+            else if (getRuntime() - startTime > 2.5){
                 break;
             }
         }
